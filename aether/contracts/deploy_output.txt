@@ -1,0 +1,15 @@
+Γùç injecting env (5) from .env // tip: Γîü auth for agents [www.vestauth.com]
+Γùç injecting env (0) from .env // tip: Γîÿ enable debugging { debug: true }
+Γùç injecting env (0) from .env // tip: Γîÿ multiple files { path: ['.env.local', '.env'] }
+Deploying AetherCarbon with account: 0x32BE5d84ceA924F758A6056214c15D01f46b5ea1
+Account balance: 0.1 MATIC
+
+Deploying with parameters:
+  AI Signer Address: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+  Treasury Address:  0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
+ProviderError: insufficient funds for gas * price + value: balance 100000000000000000, tx cost 178829460427468004, overshot 78829460427468004
+    at HttpProvider.request (C:\Users\iamud\OneDrive\Desktop\Blockchain\aether\contracts\node_modules\hardhat\src\internal\core\providers\http.ts:116:21)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at HardhatEthersSigner.sendTransaction (C:\Users\iamud\OneDrive\Desktop\Blockchain\aether\contracts\node_modules\@nomicfoundation\hardhat-ethers\src\signers.ts:185:18)
+    at ContractFactory.deploy (C:\Users\iamud\OneDrive\Desktop\Blockchain\aether\contracts\node_modules\ethers\src.ts\contract\factory.ts:111:24)
+    at main (C:\Users\iamud\OneDrive\Desktop\Blockchain\aether\contracts\scripts\deploy.js:25:20)
