@@ -9,8 +9,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import UserAuthButton from '@/components/UserAuthButton';
-import HulyBackground from '@/components/HulyBackground';
-import ThemeToggle from '@/components/ThemeToggle';
+import EarthBackground from '@/components/EarthBackground';
 
 const MapDashboard = dynamic(() => import('@/components/MapDashboard'), { ssr: false });
 const AnalyticsHub = dynamic(() => import('@/components/AnalyticsHub'), { ssr: false });
@@ -57,8 +56,8 @@ export default function Home() {
             transition={{ duration: 0.3 }}
             className="w-full max-w-7xl mx-auto pb-24 relative"
           >
-            {/* Interactive tracking canvas particles background */}
-            <HulyBackground />
+            {/* Earth WebGL Background animation */}
+            <EarthBackground />
 
             {/* Dashboard Sticky Header */}
             <header className="sticky top-0 z-50 w-full backdrop-blur-[12px] bg-[var(--glass-bg)] border-b border-[var(--glass-border)] transition-all duration-300">
@@ -89,7 +88,6 @@ export default function Home() {
                     My Offsets
                   </Link>
                   <UserAuthButton />
-                  <ThemeToggle />
                   <ConnectButton label="Connect Wallet" chainStatus="icon" showBalance={false} />
                 </div>
               </div>

@@ -1,53 +1,35 @@
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
-/* ─── Nature-Inspired Design System ─── */
+/* ─── Nature-Inspired Design System (Hardened Dark Forest Only) ─── */
 :root {
-  --color-background: #eae7e1; /* Stone warm grey alabaster base */
-  --color-foreground: #344e41; /* Pine Teal for crystal clear contrast */
+  --color-background: #18230F; /* Deep forest olive-black base layout background */
+  --color-foreground: #dad7cd; /* Dust Grey for warm readable text contrast */
   
   --dust-grey: #dad7cd;
-  --dry-sage: #a3b18a;
-  --fern: #588157;
-  --hunter-green: #3a5a40;
-  --pine-teal: #344e41;
+  --dry-sage: #27391C;
+  --fern: #255F38;
+  --hunter-green: #1F7D53;
+  --pine-teal: #18230F;
   
-  --glass-bg: rgba(255, 255, 255, 0.65);
-  --glass-border: rgba(163, 177, 138, 0.25);
+  --glass-bg: rgba(39, 57, 28, 0.7); /* Frosted Moss Olive glass panels */
+  --glass-border: rgba(37, 95, 56, 0.25); /* Elegant thin Evergreen panel borders */
   
-  --text-primary: #344e41;
-  --text-secondary: #3a5a40;
-  --text-muted: #588157;
+  --text-primary: #dad7cd; /* Warm grey base text */
+  --text-secondary: #1F7D53; /* Forest Emerald-Teal highlights and links */
+  --text-muted: #255F38; /* Evergreen status indicators */
   
-  --accent: #588157;
-  --accent-hover: #3a5a40;
-  
-  --card-shadow: 0 8px 32px 0 rgba(163, 177, 138, 0.15);
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-}
-
-.dark {
-  --color-background: #09100d; /* Pine Teal / Hunter Green deep black base */
-  --color-foreground: #dad7cd; /* Dust Grey for soft warm text */
-  
-  --glass-bg: rgba(12, 19, 16, 0.65);
-  --glass-border: rgba(88, 129, 87, 0.15);
-  
-  --text-primary: #dad7cd;
-  --text-secondary: #a3b18a;
-  --text-muted: #588157;
-  
-  --accent: #a3b18a;
+  --accent: #1F7D53;
   --accent-hover: #dad7cd;
   
-  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.55);
+  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
-  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-x: hidden;
 }
 

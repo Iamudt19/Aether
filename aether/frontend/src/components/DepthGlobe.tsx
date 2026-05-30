@@ -23,7 +23,7 @@ export default function DepthGlobe() {
           title="Aether Depth Globe WebGL"
           className="w-full h-full border-none pointer-events-auto"
           style={{
-            transform: 'scale(1.05)',
+            transform: 'scale(1.22) translateY(5%)',
             filter: 'hue-rotate(15deg) saturate(1.1)',
           }}
         />

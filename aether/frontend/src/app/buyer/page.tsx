@@ -10,8 +10,7 @@ import {
 import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import HulyBackground from '@/components/HulyBackground';
-import ThemeToggle from '@/components/ThemeToggle';
+import EarthBackground from '@/components/EarthBackground';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || '';
 
@@ -163,13 +162,12 @@ export default function BuyerDashboard() {
   if (!session) {
     return (
       <div className="min-h-screen relative flex flex-col items-center justify-center gap-6 px-4 theme-transition">
-        <HulyBackground />
+        <EarthBackground />
         <div className="text-center relative z-10">
           <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-2xl bg-[var(--fern)] font-bold text-white shadow-[0_0_30px_rgba(88,129,87,0.4)] text-2xl mb-4">Æ</div>
           <h1 className="text-2xl font-black text-[var(--text-primary)] mb-2">Buyer Dashboard</h1>
           <p className="text-[var(--text-secondary)] text-sm mb-6">Sign in to view your carbon offset purchases and certificates</p>
           <div className="flex justify-center items-center gap-3">
-            <ThemeToggle />
             <Link href="/" className="px-6 py-3 bg-[var(--fern)] hover:bg-[var(--hunter-green)] text-white text-xs font-black rounded-xl uppercase tracking-wider transition-all inline-flex items-center gap-2 shadow-md">
               Sign In via Home →
             </Link>
@@ -181,7 +179,7 @@ export default function BuyerDashboard() {
 
   return (
     <div className="min-h-screen relative theme-transition">
-      <HulyBackground />
+      <EarthBackground />
 
       {/* Header */}
       <header className="sticky top-0 z-50 w-full backdrop-blur-[12px] bg-[var(--glass-bg)] border-b border-[var(--glass-border)] transition-all duration-300">
@@ -201,7 +199,6 @@ export default function BuyerDashboard() {
             <Link href="/" className="px-3.5 py-1.5 bg-[var(--glass-bg)] border border-[var(--glass-border)] hover:bg-[var(--dry-sage)]/10 text-xs font-bold rounded-xl text-[var(--text-primary)] transition-all cursor-pointer flex items-center gap-1.5">
               <ArrowLeft className="w-3 h-3" /> Back
             </Link>
-            <ThemeToggle />
             <ConnectButton showBalance={false} chainStatus="icon" />
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = 'light' | 'dark';
+type Theme = 'dark';
 
 interface ThemeContextType {
   theme: Theme;
@@ -12,30 +12,18 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('dark'); // Default to dark for a high-end dynamic feel
+  const [theme] = useState<Theme>('dark');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Load from localStorage or system preference on mount
-    const savedTheme = localStorage.getItem('aether-theme') as Theme;
-    if (savedTheme === 'light' || savedTheme === 'dark') {
-      setTheme(savedTheme);
-      document.documentElement.classList.remove('light', 'dark');
-      document.documentElement.classList.add(savedTheme);
-    } else {
-      // Default to dark
-      document.documentElement.classList.remove('light', 'dark');
-      document.documentElement.classList.add('dark');
-    }
+    // Lock document classes to dark forest mode
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add('dark');
     setMounted(true);
   }, []);
 
   const toggleTheme = () => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(nextTheme);
-    localStorage.setItem('aether-theme', nextTheme);
-    document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(nextTheme);
+    // Locked to dark forest mode, toggle is a no-op
   };
 
   return (

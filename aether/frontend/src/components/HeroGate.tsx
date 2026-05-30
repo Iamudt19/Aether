@@ -21,8 +21,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAccount } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import DepthGlobe from './DepthGlobe';
-import ThemeToggle from './ThemeToggle';
-import { useTheme } from '../context/ThemeContext';
 
 interface HeroGateProps {
   onEnter: () => void;
@@ -30,7 +28,6 @@ interface HeroGateProps {
 
 export default function HeroGate({ onEnter }: HeroGateProps) {
   const { isConnected } = useAccount();
-  const { theme } = useTheme();
   const [session, setSession] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
   
@@ -159,7 +156,6 @@ export default function HeroGate({ onEnter }: HeroGateProps) {
           </div>
           
           <div className="flex items-center gap-4">
-            <ThemeToggle />
             <button
               onClick={() => setShowAuthModal(true)}
               className="px-5 py-2.5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] hover:bg-[var(--dry-sage)]/10 hover:border-[var(--accent)] text-[var(--text-primary)] font-extrabold text-xs tracking-wider uppercase transition-all duration-300 shadow-md cursor-pointer"
