@@ -214,7 +214,6 @@ export default function SellerDashboard() {
       <div className="min-h-screen relative flex flex-col items-center justify-center gap-6 px-4 theme-transition">
         <EarthBackground />
         <div className="text-center relative z-10">
-          <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-2xl bg-[var(--fern)] font-bold text-white shadow-[0_0_30px_rgba(88,129,87,0.4)] text-2xl mb-4">Æ</div>
           <h1 className="text-2xl font-black text-[var(--text-primary)] mb-2">Seller Dashboard</h1>
           <p className="text-[var(--text-secondary)] text-sm mb-6">Connect your wallet to view your carbon credit listings</p>
           <div className="flex justify-center items-center gap-3">
@@ -234,7 +233,6 @@ export default function SellerDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--fern)] font-bold text-white shadow-[0_0_15px_rgba(88,129,87,0.3)] text-sm">Æ</div>
               <span className="text-lg font-black text-[var(--text-primary)]">Aether Carbon</span>
             </Link>
             <span className="text-[var(--text-muted)]">/</span>
