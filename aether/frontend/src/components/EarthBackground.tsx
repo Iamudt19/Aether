@@ -10,7 +10,7 @@ export default function EarthBackground() {
       <div 
         className="absolute inset-0 pointer-events-none z-10"
         style={{
-          background: 'linear-gradient(180deg, rgba(16, 23, 18, 0.45) 0%, rgba(16, 23, 18, 0.82) 100%)',
+          background: 'linear-gradient(180deg, rgba(13, 17, 14, 0.45) 0%, rgba(13, 17, 14, 0.85) 100%)',
         }}
       />
 
@@ -22,7 +22,7 @@ export default function EarthBackground() {
           className="w-full h-full border-none select-none"
           style={{
             opacity: 0.35,
-            filter: 'hue-rotate(130deg) brightness(0.85) saturate(1.2)',
+            filter: 'hue-rotate(130deg) brightness(0.78) saturate(1.1)',
           }}
         />
       </div>

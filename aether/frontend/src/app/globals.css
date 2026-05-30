@@ -3,26 +3,26 @@
 
 /* ─── Nature-Inspired Design System (Hardened Dark Forest Only) ─── */
 :root {
-  --color-background: #101712; /* Deep forest moss sage-black base layout background */
-  --color-foreground: #F2F1EB; /* Organic soft grey for readable dark contrast text */
+  --color-background: #0d110e; /* Soft carbon slate-green (extremely easy on the eyes) */
+  --color-foreground: #eef1ed; /* Organic muted off-white for soft dark contrast text */
   
   --dust-grey: #88AB8E;
   --dry-sage: #AFC8AD;
   --fern: #EEE7DA;
   --hunter-green: #F2F1EB;
-  --pine-teal: #101712;
+  --pine-teal: #0d110e;
   
-  --glass-bg: rgba(18, 26, 20, 0.7); /* Deep sage-black semi-transparent containers */
-  --glass-border: rgba(136, 171, 142, 0.22); /* Soft moss sage panel borders */
+  --glass-bg: rgba(18, 24, 21, 0.65); /* Soothing frosted charcoal-green containers */
+  --glass-border: rgba(136, 171, 142, 0.16); /* Delicate soft moss sage borders */
   
-  --text-primary: #F2F1EB; /* Organic soft grey for primary readability */
-  --text-secondary: #EEE7DA; /* Warm light cream for headers, sub-headings, and tags */
-  --text-muted: #AFC8AD; /* Earthy sage green for subtle markers */
+  --text-primary: #eef1ed; /* Soft off-white for highly pleasant primary readability */
+  --text-secondary: #d3dad0; /* Muted sage-cream for sub-headers and tags */
+  --text-muted: #88AB8E; /* Muted moss green for indicators */
   
   --accent: #88AB8E;
-  --accent-hover: #EEE7DA;
+  --accent-hover: #eef1ed;
   
-  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.55);
+  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
