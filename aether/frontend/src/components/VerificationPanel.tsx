@@ -33,7 +33,8 @@ export default function VerificationPanel({ lat, lng, imageBase64, onSuccess }: 
     setResult(null);
 
     try {
-      const res = await fetch('http://localhost:3001/api/verify', {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+      const res = await fetch(`${backendUrl}/api/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ lat, lng, imageBase64, userAddress: address })
@@ -71,9 +72,16 @@ export default function VerificationPanel({ lat, lng, imageBase64, onSuccess }: 
     });
   };
 
+  const calledOnSuccess = React.useRef(false);
+
   React.useEffect(() => {
     if (isMintSuccess) {
-      onSuccess();
+      if (!calledOnSuccess.current) {
+        calledOnSuccess.current = true;
+        onSuccess();
+      }
+    } else {
+      calledOnSuccess.current = false;
     }
   }, [isMintSuccess, onSuccess]);
 

@@ -1,0 +1,26 @@
+# Environment files (sensitive keys)
+.env
+.env.local
+.env.production
+.env.development
+.env.staging
+*.env
+.env*
+
+# Dependency and build outputs
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Hardhat cache and artifacts
+aether/contracts/artifacts/
+aether/contracts/cache/
+aether/contracts/deploy_output.txt
+aether/contracts/hardhat_node.log
+aether/backend/backend.log
+
+# System / OS files
+.DS_Store
+Thumbs.db

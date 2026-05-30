@@ -16,13 +16,13 @@ export default function Home() {
     setSelectedCoords({ lat, lng });
   };
 
-  const handleVerificationSuccess = () => {
+  const handleVerificationSuccess = React.useCallback(() => {
     // Triggers the gallery to refresh its content
     setRefreshToggle(prev => prev + 1);
     // Reset state for new capture
     setImageBase64(null);
     setSelectedCoords({ lat: null, lng: null });
-  };
+  }, []);
 
   return (
     <div className="w-full max-w-7xl relative mx-auto pb-24">
