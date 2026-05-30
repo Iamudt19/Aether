@@ -8,7 +8,7 @@ import {
   supabaseAdmin,
 } from "@/lib/api-utils";
 import abi from "@/lib/abi.json";
-import { contractAddress } from "@/lib/config";
+import { contractAddress } from "@/lib/constants";
 
 export async function POST(req: NextRequest) {
   try {

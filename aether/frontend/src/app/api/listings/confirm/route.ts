@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ethers } from "ethers";
 import { supabaseAdmin } from "@/lib/api-utils";
-import { contractAddress } from "@/lib/config";
+import { contractAddress } from "@/lib/constants";
 
 // ERC-721 Transfer Event signature topic
 const TRANSFER_EVENT_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
