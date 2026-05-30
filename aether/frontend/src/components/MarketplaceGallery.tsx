@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useReadContract } from 'wagmi';
-import { Leaf, Globe2, Loader2, ArrowRight, ShieldCheck, TreePine } from 'lucide-react';
+import { useReadContract, useAccount, useSendTransaction } from 'wagmi';
+import { parseEther } from 'viem';
+import { supabase } from '../lib/supabaseClient';
+import { Leaf, Globe2, Loader2, ArrowRight, ShieldCheck, TreePine, Coins, HeartHandshake } from 'lucide-react';
 import { contractAddress } from '../lib/config';
 import abi from '../lib/abi.json';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,6 +20,12 @@ export default function MarketplaceGallery({ refreshToggle }: { refreshToggle: n
   const [totalImpact, setTotalImpact] = useState(0);
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [localRefresh, setLocalRefresh] = useState(0);
+
+  const { address } = useAccount();
+  const { sendTransactionAsync } = useSendTransaction();
+  const [buyingId, setBuyingId] = useState<string | null>(null);
+  const [session, setSession] = useState<any>(null);
 
   const { data: totalMintedCounter, refetch } = useReadContract({
     address: contractAddress as `0x${string}`,
@@ -26,8 +34,14 @@ export default function MarketplaceGallery({ refreshToggle }: { refreshToggle: n
   });
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
     refetch();
-  }, [refreshToggle, refetch]);
+  }, [refreshToggle, localRefresh, refetch]);
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -47,6 +61,8 @@ export default function MarketplaceGallery({ refreshToggle }: { refreshToggle: n
             image: l.image_url || '',
             seller: l.seller_address,
             created_at: l.created_at,
+            token_id: l.token_id,
+            price_inr: l.price_inr || l.credits * 10,
           }));
           setItems(mapped);
           setTotalImpact(mapped.reduce((s: number, i: any) => s + i.credits, 0));
@@ -63,7 +79,58 @@ export default function MarketplaceGallery({ refreshToggle }: { refreshToggle: n
     };
 
     fetchItems();
-  }, [totalMintedCounter, refreshToggle]);
+  }, [totalMintedCounter, refreshToggle, localRefresh]);
+
+  const handleBuy = async (item: any) => {
+    if (!address) {
+      alert("Please connect your Web3 wallet first!");
+      return;
+    }
+    if (address.toLowerCase() === item.seller.toLowerCase()) {
+      alert("You cannot buy your own carbon credit!");
+      return;
+    }
+
+    setBuyingId(item.id);
+
+    try {
+      // Send Sepolia ETH directly to the seller's wallet on-chain as a purchase!
+      // Price: 0.0001 ETH per 10 kg credits (or price_inr * 0.00001 ETH)
+      const ethAmount = (item.credits * 0.00001).toFixed(5);
+      
+      const tx = await sendTransactionAsync({
+        to: item.seller as `0x${string}`,
+        value: parseEther(ethAmount),
+      });
+
+      console.log(`✅ On-chain payment transaction sent: ${tx}`);
+
+      // Record in Supabase
+      const res = await fetch(`${BACKEND_URL}/api/listings/buy`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          txHash: tx,
+          tokenId: item.token_id || 0,
+          buyerAddress: address,
+          userSessionId: session?.user?.id || null,
+        }),
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        alert(`Successfully purchased and retired ${item.credits} kg of CO₂! The record has been added to your Buyer Dashboard.`);
+        setLocalRefresh(prev => prev + 1);
+      } else {
+        alert("Transaction recorded on-chain, but failed to update database.");
+      }
+    } catch (err: any) {
+      console.error("Purchase failed:", err);
+      alert(`Purchase failed: ${err.message || err}`);
+    } finally {
+      setBuyingId(null);
+    }
+  };
 
   return (
     <div className="w-full mt-12 flex flex-col gap-6">
@@ -148,8 +215,42 @@ export default function MarketplaceGallery({ refreshToggle }: { refreshToggle: n
                         </div>
                       )}
                     </div>
-                    <div className="mt-5 pt-4 border-t border-white/5 flex items-center justify-between text-sm text-emerald-400 group-hover:text-emerald-300">
-                      View on IPFS <ArrowRight className="w-4 h-4" />
+                    <div className="mt-5 pt-4 border-t border-white/5 flex flex-col gap-3">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-zinc-500">Value (Estimate)</span>
+                        <span className="font-bold text-zinc-300">{(item.credits * 0.00001).toFixed(5)} Sepolia ETH</span>
+                      </div>
+                      
+                      {address && address.toLowerCase() === item.seller.toLowerCase() ? (
+                        <div className="w-full text-center py-2 bg-emerald-500/5 border border-emerald-500/10 text-emerald-400 rounded-xl text-xs font-semibold">
+                          Your Listing (Active)
+                        </div>
+                      ) : (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleBuy(item);
+                          }}
+                          disabled={buyingId === item.id}
+                          className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-black text-xs font-black rounded-xl uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.15)] flex items-center justify-center gap-1.5 disabled:opacity-50"
+                        >
+                          {buyingId === item.id ? (
+                            <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Purchasing...</>
+                          ) : (
+                            <><Coins className="w-3.5 h-3.5" /> Buy & Offset</>
+                          )}
+                        </button>
+                      )}
+
+                      <a
+                        href={formatIPFS(item.image)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[11px] text-zinc-500 hover:text-emerald-400 transition-colors flex items-center justify-center gap-1 mt-1"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        View Proof on IPFS <ArrowRight className="w-3 h-3" />
+                      </a>
                     </div>
                   </div>
                 </motion.div>

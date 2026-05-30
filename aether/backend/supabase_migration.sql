@@ -17,10 +17,12 @@ CREATE TABLE IF NOT EXISTS public.carbon_purchases (
 ALTER TABLE public.carbon_purchases ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Users can read their own purchases
+DROP POLICY IF EXISTS "Users can view own purchases" ON public.carbon_purchases;
 CREATE POLICY "Users can view own purchases" ON public.carbon_purchases
   FOR SELECT USING (auth.uid() = user_id);
 
 -- Policy: Service role can insert/update (used by backend webhook)
+DROP POLICY IF EXISTS "Service role full access to purchases" ON public.carbon_purchases;
 CREATE POLICY "Service role full access to purchases" ON public.carbon_purchases
   FOR ALL USING (auth.role() = 'service_role');
 
@@ -44,10 +46,13 @@ CREATE TABLE IF NOT EXISTS public.carbon_listings (
 ALTER TABLE public.carbon_listings ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Anyone can view all listings (marketplace & dashboards)
+DROP POLICY IF EXISTS "Public can view active listings" ON public.carbon_listings;
+DROP POLICY IF EXISTS "Public can view all listings" ON public.carbon_listings;
 CREATE POLICY "Public can view all listings" ON public.carbon_listings
   FOR SELECT USING (true);
 
 -- Policy: Service role full access
+DROP POLICY IF EXISTS "Service role full access to listings" ON public.carbon_listings;
 CREATE POLICY "Service role full access to listings" ON public.carbon_listings
   FOR ALL USING (auth.role() = 'service_role');
 
