@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "./providers";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import UserAuthButton from "@/components/UserAuthButton";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -29,6 +30,7 @@ export default function RootLayout({
                 <span className="text-xl font-semibold tracking-tight text-white">Aether</span>
               </div>
               <div className="flex items-center gap-4">
+                <UserAuthButton />
                 <ConnectButton label="Connect Wallet" chainStatus="icon" showBalance={false} />
               </div>
             </div>

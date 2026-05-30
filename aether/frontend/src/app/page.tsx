@@ -5,6 +5,23 @@ import CaptureProof from '@/components/CaptureProof';
 import VerificationPanel from '@/components/VerificationPanel';
 import MarketplaceGallery from '@/components/MarketplaceGallery';
 import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
+
+const MapDashboard = dynamic(() => import('@/components/MapDashboard'), {
+  ssr: false,
+});
+
+const AnalyticsHub = dynamic(() => import('@/components/AnalyticsHub'), {
+  ssr: false,
+});
+
+const Leaderboard = dynamic(() => import('@/components/Leaderboard'), {
+  ssr: false,
+});
+
+const RazorpayOffset = dynamic(() => import('@/components/RazorpayOffset'), {
+  ssr: false,
+});
 
 export default function Home() {
   const [selectedCoords, setSelectedCoords] = useState<{lat: number | null, lng: number | null}>({ lat: null, lng: null });
@@ -75,6 +92,26 @@ export default function Home() {
             onSuccess={handleVerificationSuccess}
           />
         </motion.div>
+      </div>
+
+      {/* GIS Map Dashboard */}
+      <div className="px-4 sm:px-6 lg:px-8 mt-16">
+        <MapDashboard />
+      </div>
+
+      {/* Analytics Hub */}
+      <div className="px-4 sm:px-6 lg:px-8 mt-16">
+        <AnalyticsHub />
+      </div>
+
+      {/* Leaderboard & Corporate Offset Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-4 sm:px-6 lg:px-8 mt-16">
+        <div className="lg:col-span-2">
+          <Leaderboard />
+        </div>
+        <div className="lg:col-span-1">
+          <RazorpayOffset />
+        </div>
       </div>
 
       {/* Marketplace Section */}

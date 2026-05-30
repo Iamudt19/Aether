@@ -68,6 +68,7 @@ contract AetherCarbon is ERC721URIStorage, Ownable, ReentrancyGuard {
     event ListingCancelled(uint256 indexed tokenId, address indexed seller);
     event BackendAddressUpdated(address indexed newAddress);
     event TreasuryUpdated(address indexed newTreasury);
+    event CreditGrowthUpdated(uint256 indexed tokenId, uint256 newCreditAmount, string newUri);
 
     // ─── Constructor ─────────────────────────────────────────────────────────
 
@@ -239,5 +240,26 @@ contract AetherCarbon is ERC721URIStorage, Ownable, ReentrancyGuard {
         require(newTreasury != address(0), "Invalid address");
         treasuryWallet = newTreasury;
         emit TreasuryUpdated(newTreasury);
+    }
+
+    /**
+     * @notice Allows the owner (AI backend) to programmatically upgrade the carbon credit count
+     *         and update the NFT metadata URI as the tree grows over time.
+     * @param tokenId            The ID of the growing tree NFT.
+     * @param additionalCredits  The amount of additional credits to add.
+     * @param newUri             The new metadata URI reflecting the evolved tree state.
+     */
+    function updateCreditGrowth(
+        uint256 tokenId,
+        uint256 additionalCredits,
+        string calldata newUri
+    ) external onlyOwner {
+        require(ownerOf(tokenId) != address(0), "Token does not exist");
+        require(additionalCredits > 0, "Additional credits must be > 0");
+
+        tokenCredits[tokenId] += additionalCredits;
+        _setTokenURI(tokenId, newUri);
+
+        emit CreditGrowthUpdated(tokenId, tokenCredits[tokenId], newUri);
     }
 }
