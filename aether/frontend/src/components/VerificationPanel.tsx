@@ -33,7 +33,7 @@ export default function VerificationPanel({ lat, lng, imageBase64, onSuccess }: 
     setResult(null);
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
       const res = await fetch(`${backendUrl}/api/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
