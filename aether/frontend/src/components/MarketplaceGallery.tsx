@@ -119,7 +119,7 @@ export default function MarketplaceGallery({ refreshToggle }: { refreshToggle: n
 
       const json = await res.json();
       if (json.success) {
-        alert(`Successfully purchased and retired ${item.credits} kg of CO₂! The record has been added to your Buyer Dashboard.`);
+        alert(`Direct P2P Purchase Successful!\n\nYou have transferred the Sepolia ETH directly to the seller's wallet via MetaMask. Retired ${item.credits} kg of CO₂! The record is now updated on your Buyer Dashboard.`);
         setLocalRefresh(prev => prev + 1);
       } else {
         alert("Transaction recorded on-chain, but failed to update database.");
@@ -217,7 +217,7 @@ export default function MarketplaceGallery({ refreshToggle }: { refreshToggle: n
                     </div>
                     <div className="mt-5 pt-4 border-t border-white/5 flex flex-col gap-3">
                       <div className="flex justify-between items-center text-xs">
-                        <span className="text-zinc-500">Value (Estimate)</span>
+                        <span className="text-zinc-500">P2P Purchase Price</span>
                         <span className="font-bold text-zinc-300">{(item.credits * 0.00001).toFixed(5)} Sepolia ETH</span>
                       </div>
                       
@@ -226,20 +226,25 @@ export default function MarketplaceGallery({ refreshToggle }: { refreshToggle: n
                           Your Listing (Active)
                         </div>
                       ) : (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleBuy(item);
-                          }}
-                          disabled={buyingId === item.id}
-                          className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-black text-xs font-black rounded-xl uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.15)] flex items-center justify-center gap-1.5 disabled:opacity-50"
-                        >
-                          {buyingId === item.id ? (
-                            <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Purchasing...</>
-                          ) : (
-                            <><Coins className="w-3.5 h-3.5" /> Buy & Offset</>
-                          )}
-                        </button>
+                        <div className="flex flex-col gap-1.5 w-full">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleBuy(item);
+                            }}
+                            disabled={buyingId === item.id}
+                            className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-black text-xs font-black rounded-xl uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.15)] flex items-center justify-center gap-1.5 disabled:opacity-50"
+                          >
+                            {buyingId === item.id ? (
+                              <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Purchasing...</>
+                            ) : (
+                              <><Coins className="w-3.5 h-3.5" /> Buy & Offset</>
+                            )}
+                          </button>
+                          <span className="text-[9px] text-zinc-500 text-center block">
+                            ⚡ Direct P2P MetaMask payment to seller's wallet
+                          </span>
+                        </div>
                       )}
 
                       <a

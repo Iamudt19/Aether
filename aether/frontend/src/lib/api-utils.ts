@@ -57,6 +57,45 @@ export async function identifyPlant(base64Image: string) {
   return { is_plant: isPlant, is_plant_probability: isPlantProbability, species: "Unknown", probability: 0 };
 }
 
+// ─── Google Vision Label Detection ───────────────────────────────────────────
+export async function detectImageLabels(base64Image: string): Promise<string[]> {
+  const GOOGLE_VISION_API_KEY = process.env.GOOGLE_VISION_API_KEY;
+  if (!GOOGLE_VISION_API_KEY) {
+    console.warn("⚠️ GOOGLE_VISION_API_KEY not set, skipping scene label analysis.");
+    return [];
+  }
+  try {
+    const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, "");
+    const res = await axios.post(
+      `https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_VISION_API_KEY}`,
+      {
+        requests: [
+          {
+            image: {
+              content: base64Data,
+            },
+            features: [
+              {
+                type: "LABEL_DETECTION",
+                maxResults: 15,
+              },
+            ],
+          },
+        ],
+      },
+      { timeout: 15000 }
+    );
+    const annotations = res.data?.responses?.[0]?.labelAnnotations || [];
+    const labels = annotations.map((ann: any) => ann.description.toLowerCase());
+    console.log("🔍 Google Vision Scene Labels:", labels);
+    return labels;
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("❌ Google Vision label detection failed:", message);
+    return [];
+  }
+}
+
 // ─── Pinata ───────────────────────────────────────────────────────────────────
 export async function uploadImageToPinata(base64Image: string): Promise<string> {
   const PINATA_JWT = process.env.PINATA_JWT;

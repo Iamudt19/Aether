@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ethers } from "ethers";
 import {
   identifyPlant,
+  detectImageLabels,
   uploadImageToPinata,
   uploadMetadataToPinata,
   getAISigner,
@@ -24,44 +25,122 @@ export async function POST(req: NextRequest) {
 
     console.log(`🌳  Received verification from ${userAddress}`);
 
-    // ── Plant Identification ──────────────────────────────────────────────────
+    const bypassAntiFraud = process.env.BYPASS_ANTI_FRAUD === "true";
+    console.log(`🛡️  Bypass anti-fraud flag: ${bypassAntiFraud}`);
+
+    // ── Visual Verification (Dual-Layer AI check) ────────────────────────────
     let plantResult = {
       is_plant: true,
       is_plant_probability: 0.5,
       species: "Generic Flora",
       probability: 0.5,
+      api_failed: false,
     };
-    try {
-      plantResult = await identifyPlant(imageBase64);
-      console.log(
-        `🔎  Plant.id → Species: ${plantResult.species} | Confidence: ${(plantResult.probability * 100).toFixed(1)}%`
-      );
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Unknown error";
-      console.warn("⚠️ Plant.id API failed, using fallback.", message);
-    }
 
-    if (!plantResult.is_plant || plantResult.is_plant_probability < 0.5) {
-      return NextResponse.json({
-        success: false,
-        rejected: true,
-        species: plantResult.species || "Non-Plant Object",
-        probability: plantResult.probability,
-        is_plant: plantResult.is_plant,
-        is_plant_probability: plantResult.is_plant_probability,
-        message: "Object identified is not a valid plant. Please upload a clear photo of your tree.",
-      });
-    }
-    if (plantResult.probability < 0.8) {
-      return NextResponse.json({
-        success: false,
-        rejected: true,
-        species: plantResult.species,
-        probability: plantResult.probability,
-        is_plant: plantResult.is_plant,
-        is_plant_probability: plantResult.is_plant_probability,
-        message: `AI confidence is too low (${(plantResult.probability * 100).toFixed(1)}%). Please upload a clearer photo.`,
-      });
+    if (!bypassAntiFraud) {
+      // 1. Plant.id Taxonomy Verification
+      try {
+        const result = await identifyPlant(imageBase64);
+        plantResult = { ...result, api_failed: false };
+        console.log(
+          `🔎  Plant.id → Species: ${plantResult.species} | Confidence: ${(plantResult.probability * 100).toFixed(1)}%`
+        );
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Unknown error";
+        console.warn("⚠️ Plant.id API failed.", message);
+        plantResult.api_failed = true;
+      }
+
+      if (plantResult.api_failed) {
+        return NextResponse.json({
+          success: false,
+          rejected: true,
+          species: "Verification Service Unavailable",
+          probability: 0,
+          is_plant: false,
+          is_plant_probability: 0,
+          message: "Verification service is currently offline or the API limit is reached. Please try again later.",
+        });
+      }
+
+      if (!plantResult.is_plant || plantResult.is_plant_probability < 0.5) {
+        return NextResponse.json({
+          success: false,
+          rejected: true,
+          species: plantResult.species || "Non-Plant Object",
+          probability: plantResult.probability,
+          is_plant: plantResult.is_plant,
+          is_plant_probability: plantResult.is_plant_probability,
+          message: "Object identified is not a valid plant. Please upload a clear photo of your tree.",
+        });
+      }
+      if (plantResult.probability < 0.8) {
+        return NextResponse.json({
+          success: false,
+          rejected: true,
+          species: plantResult.species,
+          probability: plantResult.probability,
+          is_plant: plantResult.is_plant,
+          is_plant_probability: plantResult.is_plant_probability,
+          message: `AI confidence is too low (${(plantResult.probability * 100).toFixed(1)}%). Please upload a clearer photo.`,
+        });
+      }
+
+      // 2. Google Vision Scene Verification (Anti-Fraud)
+      const labels = await detectImageLabels(imageBase64);
+      if (labels.length > 0) {
+        // Enforce tree/plant/nature context: At least one of these should be present
+        const natureKeywords = [
+          "tree", "plant", "leaf", "trunk", "branch", "forest", "vegetation", "shrub", "flora", 
+          "garden", "nature", "wood", "green", "botany", "houseplant", "aerial photography", 
+          "grass", "herb", "flower"
+        ];
+        const hasNatureContext = labels.some((lbl) => natureKeywords.includes(lbl));
+
+        // Reject screens, monitors, mobile phones, electronics, laptops, indoor offices
+        const screenKeywords = [
+          "screen", "monitor", "television", "display device", "mobile phone", "gadget", 
+          "smartphone", "laptop", "computer", "electronics"
+        ];
+        const isScreenOrDevice = labels.some((lbl) => screenKeywords.includes(lbl));
+
+        if (isScreenOrDevice) {
+          console.warn("🚫 Anti-fraud alert: Detected screen or mobile device in upload.");
+          return NextResponse.json({
+            success: false,
+            rejected: true,
+            species: "Device Screen / Electronic Photo",
+            probability: 0.99,
+            is_plant: false,
+            is_plant_probability: 0.0,
+            message: "Visual verification rejected: You cannot upload photos of electronic screens or digital devices. Please capture a real, physical tree outdoors.",
+          });
+        }
+
+        if (!hasNatureContext) {
+          console.warn("🚫 Anti-fraud alert: No tree, plant or nature labels detected in scene.");
+          return NextResponse.json({
+            success: false,
+            rejected: true,
+            species: "Non-Nature Subject",
+            probability: 0.95,
+            is_plant: false,
+            is_plant_probability: 0.0,
+            message: "Visual verification failed: The photo does not appear to contain a valid tree or plant species in a natural setting. Please upload a clear photo of your tree outdoors.",
+          });
+        }
+      }
+    } else {
+      // Bypassed! Generate a random realistic tree species
+      const mockTrees = ["Moringa Oleifera", "Azadirachta Indica (Neem)", "Ficus Religiosa (Sacred Fig)", "Mangifera Indica (Mango)"];
+      plantResult = {
+        is_plant: true,
+        is_plant_probability: 0.98,
+        species: mockTrees[Math.floor(Math.random() * mockTrees.length)],
+        probability: 0.95,
+        api_failed: false,
+      };
+      console.log(`🛡️  Bypass active. Auto-generating tree species: ${plantResult.species}`);
     }
 
     const { species, probability: confidence } = plantResult;

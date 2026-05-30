@@ -245,6 +245,53 @@ export default function BuyerDashboard() {
           </motion.div>
         )}
 
+        {/* Buyer Stewardship Badges */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="glass-panel p-6 rounded-2xl border border-white/5 bg-zinc-950/20 mb-8"
+        >
+          <h2 className="text-sm font-bold flex items-center gap-2 mb-4 text-teal-400">
+            <CheckCircle2 className="w-4 h-4" /> Offset Stewardship Badges
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className={`p-4 rounded-xl border flex items-center gap-3 transition-all ${
+              purchases.length >= 1 
+                ? 'bg-teal-500/10 border-teal-500/20 text-teal-300' 
+                : 'bg-zinc-900/30 border-white/5 text-zinc-600'
+            }`}>
+              <div className="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center font-bold">🍃</div>
+              <div>
+                <p className="text-xs font-bold">Green Supporter</p>
+                <p className="text-[9px] opacity-75">Retired 1st carbon credit</p>
+              </div>
+            </div>
+            <div className={`p-4 rounded-xl border flex items-center gap-3 transition-all ${
+              totalRetired >= 100 
+                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300' 
+                : 'bg-zinc-900/30 border-white/5 text-zinc-600'
+            }`}>
+              <div className="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center font-bold">🌎</div>
+              <div>
+                <p className="text-xs font-bold">Eco Guardian</p>
+                <p className="text-[9px] opacity-75">Retired 100+ kg CO₂e</p>
+              </div>
+            </div>
+            <div className={`p-4 rounded-xl border flex items-center gap-3 transition-all ${
+              totalRetired >= 500 
+                ? 'bg-amber-500/10 border-amber-500/20 text-amber-300' 
+                : 'bg-zinc-900/30 border-white/5 text-zinc-600'
+            }`}>
+              <div className="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center font-bold">🏆</div>
+              <div>
+                <p className="text-xs font-bold">Net-Zero Champion</p>
+                <p className="text-[9px] opacity-75">Retired 500+ kg CO₂e</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Purchases List */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
