@@ -3,26 +3,26 @@
 
 /* ─── Nature-Inspired Design System (Hardened Dark Forest Only) ─── */
 :root {
-  --color-background: #18230F; /* Deep forest olive-black base layout background */
-  --color-foreground: #dad7cd; /* Dust Grey for warm readable text contrast */
+  --color-background: #F6F0D7; /* Warm light cream / alabaster layout background base */
+  --color-foreground: #89986D; /* Deep herbal green for readable text contrast */
   
-  --dust-grey: #dad7cd;
-  --dry-sage: #27391C;
-  --fern: #255F38;
-  --hunter-green: #1F7D53;
-  --pine-teal: #18230F;
+  --dust-grey: #F6F0D7;
+  --dry-sage: #C5D89D;
+  --fern: #9CAB84;
+  --hunter-green: #89986D;
+  --pine-teal: #89986D;
   
-  --glass-bg: rgba(39, 57, 28, 0.7); /* Frosted Moss Olive glass panels */
-  --glass-border: rgba(37, 95, 56, 0.25); /* Elegant thin Evergreen panel borders */
+  --glass-bg: rgba(255, 255, 255, 0.72); /* Frosted warm white glass panels */
+  --glass-border: rgba(197, 216, 157, 0.45); /* Soft yellow-green borders */
   
-  --text-primary: #dad7cd; /* Warm grey base text */
-  --text-secondary: #1F7D53; /* Forest Emerald-Teal highlights and links */
-  --text-muted: #255F38; /* Evergreen status indicators */
+  --text-primary: #89986D; /* Deep herbal green for primary copy */
+  --text-secondary: #9CAB84; /* Earthy herbal green for highlights and links */
+  --text-muted: #9CAB84; /* Herbal green for indicators */
   
-  --accent: #1F7D53;
-  --accent-hover: #dad7cd;
+  --accent: #89986D;
+  --accent-hover: #9CAB84;
   
-  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+  --card-shadow: 0 8px 32px 0 rgba(197, 216, 157, 0.12);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
