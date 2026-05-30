@@ -97,7 +97,7 @@ export default function UserAuthButton() {
         ) : (
           <motion.button
             onClick={signInWithGoogle}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/30 transition-all font-semibold text-xs cursor-pointer"
+            className="glass-btn-primary flex items-center gap-2 px-4 py-2 rounded-xl text-xs cursor-pointer"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

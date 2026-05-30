@@ -154,7 +154,7 @@ export default function VerificationPanel({ lat, lng, imageBase64, onSuccess }: 
           {error && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-center">
               <p className="text-red-400 mb-4 text-sm">{error}</p>
-              <button onClick={() => { setError(null); handleVerify(); }} className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-lg transition-colors">
+              <button onClick={() => { setError(null); handleVerify(); }} className="glass-btn px-4 py-2 rounded-lg">
                 Retry Verification
               </button>
             </motion.div>
@@ -182,7 +182,7 @@ export default function VerificationPanel({ lat, lng, imageBase64, onSuccess }: 
                 </div>
                 <button
                   onClick={() => { setResult(null); setError(null); }}
-                  className="px-6 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-lg transition-colors text-sm font-medium"
+                  className="glass-btn px-6 py-2 rounded-lg text-sm font-medium"
                 >
                   Upload a Different Photo
                 </button>
@@ -229,7 +229,7 @@ export default function VerificationPanel({ lat, lng, imageBase64, onSuccess }: 
                 <button
                   onClick={handleMint}
                   disabled={isMinting || isWaiting}
-                  className="w-full py-4 px-6 gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] disabled:opacity-50 font-bold transition-all flex items-center justify-center transform hover:-translate-y-0.5"
+                  className="glass-btn-primary w-full py-4 px-6 gap-2 rounded-xl disabled:opacity-50 flex items-center justify-center transform hover:-translate-y-0.5"
                 >
                   {(isMinting || isWaiting) ? (
                     <><Loader2 className="w-5 h-5 animate-spin" /> Minting Verified NFT...</>

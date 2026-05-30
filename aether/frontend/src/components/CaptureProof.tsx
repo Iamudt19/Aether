@@ -235,11 +235,11 @@ export default function CaptureProof({ onCapture }: CaptureProofProps) {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <button onClick={startCamera}
-                className="py-4 px-8 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white font-bold transition-all flex items-center gap-2 transform hover:-translate-y-1 shadow-[0_0_20px_rgba(16,185,129,0.4)]">
+                className="glass-btn-primary py-4 px-8 rounded-full flex items-center gap-2 transform hover:-translate-y-1">
                 <Video className="w-5 h-5" /> Open Camera
               </button>
               <button onClick={() => galleryInputRef.current?.click()}
-                className="py-4 px-8 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold transition-all flex items-center gap-2 transform hover:-translate-y-1 border border-white/10">
+                className="glass-btn py-4 px-8 rounded-full flex items-center gap-2 transform hover:-translate-y-1">
                 <ImagePlus className="w-5 h-5" /> Upload Gallery
               </button>
             </div>
@@ -257,10 +257,10 @@ export default function CaptureProof({ onCapture }: CaptureProofProps) {
                 <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" />
                 <p className="text-red-300 text-sm mb-4">{cameraError}</p>
                 <div className="flex gap-3 justify-center">
-                  <button onClick={resetState} className="px-5 py-2 bg-zinc-800 text-white rounded-lg text-sm hover:bg-zinc-700 transition-colors">
+                  <button onClick={resetState} className="glass-btn px-5 py-2 rounded-lg text-sm">
                     Go Back
                   </button>
-                  <button onClick={() => galleryInputRef.current?.click()} className="px-5 py-2 bg-emerald-500/20 text-emerald-300 rounded-lg text-sm hover:bg-emerald-500/30 transition-colors">
+                  <button onClick={() => galleryInputRef.current?.click()} className="glass-btn-primary px-5 py-2 rounded-lg text-sm">
                     Upload Instead
                   </button>
                 </div>
@@ -306,7 +306,7 @@ export default function CaptureProof({ onCapture }: CaptureProofProps) {
                 {/* Camera Controls */}
                 <div className="flex items-center gap-6 mt-5">
                   <button onClick={resetState}
-                    className="w-12 h-12 rounded-full bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center transition-colors border border-white/10">
+                    className="glass-btn w-12 h-12 rounded-full flex items-center justify-center">
                     <X className="w-5 h-5 text-white" />
                   </button>
 
@@ -360,7 +360,7 @@ export default function CaptureProof({ onCapture }: CaptureProofProps) {
               )}
 
               <button onClick={submitProof} disabled={!canSubmit}
-                className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                className="glass-btn-primary w-full py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
                 <UploadCloud className="w-5 h-5" /> Analyze Biomass & Mint
               </button>
             </div>
