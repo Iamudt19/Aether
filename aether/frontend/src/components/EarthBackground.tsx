@@ -6,11 +6,11 @@ export default function EarthBackground() {
   return (
     <div className="fixed inset-0 w-full h-full -z-20 overflow-hidden pointer-events-none">
       
-      {/* Organic light blend overlay */}
+      {/* Organic dark blend overlay */}
       <div 
         className="absolute inset-0 pointer-events-none z-10"
         style={{
-          background: 'linear-gradient(180deg, rgba(246, 240, 215, 0.45) 0%, rgba(246, 240, 215, 0.85) 100%)',
+          background: 'linear-gradient(180deg, rgba(16, 23, 18, 0.45) 0%, rgba(16, 23, 18, 0.82) 100%)',
         }}
       />
 
@@ -21,8 +21,8 @@ export default function EarthBackground() {
           title="Aether Earth Background"
           className="w-full h-full border-none select-none"
           style={{
-            opacity: 0.28,
-            filter: 'hue-rotate(130deg) brightness(1.08) saturate(0.8)',
+            opacity: 0.35,
+            filter: 'hue-rotate(130deg) brightness(0.85) saturate(1.2)',
           }}
         />
       </div>

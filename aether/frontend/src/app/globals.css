@@ -3,26 +3,26 @@
 
 /* ─── Nature-Inspired Design System (Hardened Dark Forest Only) ─── */
 :root {
-  --color-background: #F6F0D7; /* Warm light cream / alabaster layout background base */
-  --color-foreground: #89986D; /* Deep herbal green for readable text contrast */
+  --color-background: #101712; /* Deep forest moss sage-black base layout background */
+  --color-foreground: #F2F1EB; /* Organic soft grey for readable dark contrast text */
   
-  --dust-grey: #F6F0D7;
-  --dry-sage: #C5D89D;
-  --fern: #9CAB84;
-  --hunter-green: #89986D;
-  --pine-teal: #89986D;
+  --dust-grey: #88AB8E;
+  --dry-sage: #AFC8AD;
+  --fern: #EEE7DA;
+  --hunter-green: #F2F1EB;
+  --pine-teal: #101712;
   
-  --glass-bg: rgba(255, 255, 255, 0.72); /* Frosted warm white glass panels */
-  --glass-border: rgba(197, 216, 157, 0.45); /* Soft yellow-green borders */
+  --glass-bg: rgba(18, 26, 20, 0.7); /* Deep sage-black semi-transparent containers */
+  --glass-border: rgba(136, 171, 142, 0.22); /* Soft moss sage panel borders */
   
-  --text-primary: #89986D; /* Deep herbal green for primary copy */
-  --text-secondary: #9CAB84; /* Earthy herbal green for highlights and links */
-  --text-muted: #9CAB84; /* Herbal green for indicators */
+  --text-primary: #F2F1EB; /* Organic soft grey for primary readability */
+  --text-secondary: #EEE7DA; /* Warm light cream for headers, sub-headings, and tags */
+  --text-muted: #AFC8AD; /* Earthy sage green for subtle markers */
   
-  --accent: #89986D;
-  --accent-hover: #9CAB84;
+  --accent: #88AB8E;
+  --accent-hover: #EEE7DA;
   
-  --card-shadow: 0 8px 32px 0 rgba(197, 216, 157, 0.12);
+  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.55);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
