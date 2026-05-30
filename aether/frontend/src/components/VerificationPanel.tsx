@@ -75,15 +75,36 @@ export default function VerificationPanel({ lat, lng, imageBase64, onSuccess }: 
   const calledOnSuccess = React.useRef(false);
 
   React.useEffect(() => {
+    const confirmMint = async () => {
+      if (isMintSuccess && hash && result && address) {
+        try {
+          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+          await fetch(`${backendUrl}/api/listings/confirm`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              txHash: hash,
+              userAddress: address,
+              signature: result.signature,
+            }),
+          });
+        } catch (err) {
+          console.error("Failed to confirm listing update in Supabase:", err);
+        }
+      }
+    };
+
     if (isMintSuccess) {
       if (!calledOnSuccess.current) {
         calledOnSuccess.current = true;
-        onSuccess();
+        confirmMint().then(() => {
+          onSuccess();
+        });
       }
     } else {
       calledOnSuccess.current = false;
     }
-  }, [isMintSuccess, onSuccess]);
+  }, [isMintSuccess, hash, result, address, onSuccess]);
 
   // Trigger verify automatically when props exist but only if we don't have a result and aren't loading.
   React.useEffect(() => {

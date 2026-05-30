@@ -43,9 +43,9 @@ CREATE TABLE IF NOT EXISTS public.carbon_listings (
 -- Enable Row Level Security
 ALTER TABLE public.carbon_listings ENABLE ROW LEVEL SECURITY;
 
--- Policy: Anyone can view active listings (marketplace)
-CREATE POLICY "Public can view active listings" ON public.carbon_listings
-  FOR SELECT USING (status = 'active');
+-- Policy: Anyone can view all listings (marketplace & dashboards)
+CREATE POLICY "Public can view all listings" ON public.carbon_listings
+  FOR SELECT USING (true);
 
 -- Policy: Service role full access
 CREATE POLICY "Service role full access to listings" ON public.carbon_listings
