@@ -45,7 +45,7 @@ if (typeof globalThis !== 'undefined') {
           return Promise.resolve(new Response('{}', { status: 200 }));
         }
       }
-      return originalFetch.apply(globalThis, args).catch((error: any) => {
+      return originalFetch(...(args as [RequestInfo, RequestInit?])).catch((error: any) => {
         if (url.includes('api.web3modal.org')) {
           return new Response('{}', { status: 200 });
         }
