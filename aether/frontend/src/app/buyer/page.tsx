@@ -97,7 +97,7 @@ function CertificateModal({ purchase, onClose }: { purchase: Purchase; onClose: 
           <div className="flex gap-2">
             <button
               onClick={() => window.print()}
-              className="flex-1 py-2.5 bg-[var(--fern)] hover:bg-[var(--hunter-green)] text-white text-xs font-black rounded-xl uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
+              className="glass-btn-primary flex-1 py-2.5 text-xs rounded-xl uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
             >
               <Download className="w-3.5 h-3.5" /> Download / Print
             </button>
@@ -168,7 +168,7 @@ export default function BuyerDashboard() {
           <h1 className="text-2xl font-black text-[var(--text-primary)] mb-2">Buyer Dashboard</h1>
           <p className="text-[var(--text-secondary)] text-sm mb-6">Sign in to view your carbon offset purchases and certificates</p>
           <div className="flex justify-center items-center gap-3">
-            <Link href="/" className="px-6 py-3 bg-[var(--fern)] hover:bg-[var(--hunter-green)] text-white text-xs font-black rounded-xl uppercase tracking-wider transition-all inline-flex items-center gap-2 shadow-md">
+            <Link href="/" className="glass-btn-primary px-6 py-3 text-xs rounded-xl uppercase tracking-wider transition-all inline-flex items-center gap-2 shadow-md">
               Sign In via Home →
             </Link>
           </div>
@@ -380,7 +380,7 @@ export default function BuyerDashboard() {
                       {purchase.status === 'captured' && (
                         <button
                           onClick={() => setSelectedCert(purchase)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--fern)]/10 border border-[var(--fern)]/20 hover:bg-[var(--fern)]/20 text-[var(--fern)] text-[10px] font-bold rounded-lg transition-all cursor-pointer opacity-0 group-hover:opacity-100"
+                          className="glass-btn flex items-center gap-1.5 px-3 py-1.5 text-[10px] rounded-lg cursor-pointer opacity-0 group-hover:opacity-100"
                         >
                           <FileText className="w-3 h-3" /> Certificate
                         </button>
@@ -409,7 +409,7 @@ export default function BuyerDashboard() {
           </div>
           <Link
             href="/"
-            className="px-5 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-black rounded-xl uppercase tracking-widest transition-all flex items-center gap-2 shrink-0 shadow-md"
+            className="glass-btn-primary px-5 py-2.5 text-xs rounded-xl uppercase tracking-widest transition-all flex items-center gap-2 shrink-0 shadow-md"
           >
             <TreePine className="w-3.5 h-3.5" /> Open Marketplace →
           </Link>

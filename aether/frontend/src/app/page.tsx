@@ -71,19 +71,19 @@ export default function Home() {
                 <div className="flex items-center gap-2 sm:gap-3">
                   <button
                     onClick={() => setShowDashboard(false)}
-                    className="hidden sm:flex px-3.5 py-1.5 bg-[var(--glass-bg)] border border-[var(--glass-border)] hover:bg-[var(--dry-sage)]/10 hover:border-[var(--accent)] text-xs font-bold rounded-xl text-[var(--text-primary)] transition-all cursor-pointer shadow-sm items-center gap-1"
+                    className="hidden sm:flex glass-btn px-3.5 py-1.5 text-xs rounded-xl shadow-sm items-center gap-1"
                   >
                     ← Home
                   </button>
                   <Link
                     href="/seller"
-                    className="px-3.5 py-1.5 bg-[var(--fern)]/10 border border-[var(--fern)]/20 hover:bg-[var(--fern)]/20 text-xs font-black rounded-xl text-[var(--fern)] transition-all cursor-pointer shadow-sm"
+                    className="glass-btn px-3.5 py-1.5 rounded-xl text-xs"
                   >
                     Seller
                   </Link>
                   <Link
                     href="/buyer"
-                    className="hidden sm:inline-flex px-3.5 py-1.5 bg-[var(--accent)]/10 border border-[var(--accent)]/20 hover:bg-[var(--accent)]/20 text-xs font-black rounded-xl text-[var(--accent)] transition-all cursor-pointer shadow-sm"
+                    className="hidden sm:inline-flex glass-btn px-3.5 py-1.5 rounded-xl text-xs"
                   >
                     My Offsets
                   </Link>

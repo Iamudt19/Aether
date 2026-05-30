@@ -50,12 +50,12 @@ export default function UserAuthButton() {
                 <img
                   src={user.user_metadata.avatar_url}
                   alt={user.user_metadata.full_name || 'User'}
-                  className="w-7 h-7 rounded-full border border-emerald-500/30"
+                  className="w-7 h-7 rounded-full border border-white/30"
                   referrerPolicy="no-referrer"
                 />
               ) : (
-                <div className="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
-                  <User className="w-4 h-4 text-emerald-400" />
+                <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center border border-white/30">
+                  <User className="w-4 h-4 text-white" />
                 </div>
               )}
               <span className="text-xs font-medium text-zinc-300 hidden md:block">
@@ -86,7 +86,7 @@ export default function UserAuthButton() {
                       setDropdownOpen(false);
                       signOut();
                     }}
-                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-red-500/10 text-red-400 hover:text-red-300 transition-colors text-xs font-medium flex items-center gap-2 cursor-pointer"
+                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 text-white hover:text-white transition-colors text-xs font-medium flex items-center gap-2 cursor-pointer"
                   >
                     <LogOut className="w-3.5 h-3.5" /> Sign Out
                   </button>

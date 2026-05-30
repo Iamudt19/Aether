@@ -134,18 +134,18 @@ export default function MarketplaceGallery({ refreshToggle }: { refreshToggle: n
 
   return (
     <div className="w-full mt-12 flex flex-col gap-6">
-      <div className="glass-panel p-6 rounded-2xl flex items-center justify-between border-emerald-500/20 bg-emerald-500/5">
+      <div className="glass-panel p-6 rounded-2xl flex items-center justify-between border-white/20 bg-white/5">
         <div>
           <h2 className="text-2xl font-semibold flex items-center gap-2">
-            <Globe2 className="text-emerald-500" /> Live Global Impact
+            <Globe2 className="text-white" /> Live Global Impact
           </h2>
           <p className="text-zinc-400 mt-1">Total CO₂ sequestered via verified Aether credits</p>
         </div>
         <div className="text-right flex flex-col items-end">
-          <span className="text-4xl font-bold font-mono tracking-tighter text-emerald-400 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]">
+          <span className="text-4xl font-bold font-mono tracking-tighter text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">
             {totalImpact.toLocaleString()}
           </span>
-          <span className="text-sm font-medium text-emerald-500/70 uppercase tracking-widest mt-1">Kilograms CO₂e</span>
+          <span className="text-sm font-medium text-white/70 uppercase tracking-widest mt-1">Kilograms CO₂e</span>
         </div>
       </div>
 
@@ -170,7 +170,7 @@ export default function MarketplaceGallery({ refreshToggle }: { refreshToggle: n
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.07 }}
                   key={item.id}
-                  className="glass-panel rounded-2xl overflow-hidden group cursor-pointer hover:border-emerald-500/30 transition-colors border border-white/5"
+                  className="glass-panel rounded-2xl overflow-hidden group cursor-pointer hover:border-white/30 transition-colors border border-white/5"
                 >
                   <div className="h-48 relative overflow-hidden bg-zinc-900 border-b border-white/5">
                     {item.image ? (
@@ -187,7 +187,7 @@ export default function MarketplaceGallery({ refreshToggle }: { refreshToggle: n
                         <TreePine className="w-10 h-10 text-zinc-700" />
                       </div>
                     )}
-                    <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center gap-1.5 text-[10px] font-medium text-emerald-300">
+                    <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center gap-1.5 text-[10px] font-medium text-white">
                       <ShieldCheck className="w-3 h-3" /> {item.species?.split('(')[0]?.trim() || 'Verified'}
                     </div>
                   </div>
@@ -199,7 +199,7 @@ export default function MarketplaceGallery({ refreshToggle }: { refreshToggle: n
                         </p>
                         <h4 className="text-sm font-semibold text-white truncate max-w-[160px]">{item.species}</h4>
                       </div>
-                      <div className="flex items-center gap-1 font-bold font-mono text-emerald-400">
+                      <div className="flex items-center gap-1 font-bold font-mono text-white">
                         {item.credits}<span className="text-xs opacity-70">kg</span>
                       </div>
                     </div>
@@ -222,7 +222,7 @@ export default function MarketplaceGallery({ refreshToggle }: { refreshToggle: n
                       </div>
                       
                       {address && address.toLowerCase() === item.seller.toLowerCase() ? (
-                        <div className="w-full text-center py-2 bg-emerald-500/5 border border-emerald-500/10 text-emerald-400 rounded-xl text-xs font-semibold">
+                        <div className="w-full text-center py-2 bg-white/5 border border-white/10 text-white rounded-xl text-xs font-semibold">
                           Your Listing (Active)
                         </div>
                       ) : (
@@ -233,7 +233,7 @@ export default function MarketplaceGallery({ refreshToggle }: { refreshToggle: n
                               handleBuy(item);
                             }}
                             disabled={buyingId === item.id}
-                            className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-black text-xs font-black rounded-xl uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.15)] flex items-center justify-center gap-1.5 disabled:opacity-50"
+                            className="glass-btn-primary w-full py-2.5 text-xs rounded-xl uppercase tracking-wider flex items-center justify-center gap-1.5 disabled:opacity-50"
                           >
                             {buyingId === item.id ? (
                               <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Purchasing...</>
@@ -251,7 +251,7 @@ export default function MarketplaceGallery({ refreshToggle }: { refreshToggle: n
                         href={formatIPFS(item.image)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[11px] text-zinc-500 hover:text-emerald-400 transition-colors flex items-center justify-center gap-1 mt-1"
+                        className="text-[11px] text-zinc-500 hover:text-white transition-colors flex items-center justify-center gap-1 mt-1"
                         onClick={(e) => e.stopPropagation()}
                       >
                         View Proof on IPFS <ArrowRight className="w-3 h-3" />

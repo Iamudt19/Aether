@@ -147,13 +147,13 @@ export default function VerificationPanel({ lat, lng, imageBase64, onSuccess }: 
           {loading && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center py-8">
               <Loader2 className="w-12 h-12 text-emerald-500 animate-spin mb-4" />
-              <p className="text-emerald-400 font-medium animate-pulse text-center">Processing with Plant.id & IPFS...<br/><span className="text-xs opacity-70">This takes ~5 seconds</span></p>
+              <p className="text-white font-medium animate-pulse text-center">Processing with Plant.id & IPFS...<br/><span className="text-xs opacity-70">This takes ~5 seconds</span></p>
             </motion.div>
           )}
 
           {error && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-center">
-              <p className="text-red-400 mb-4 text-sm">{error}</p>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full bg-white/10 border border-white/20 p-4 rounded-xl text-center">
+              <p className="text-white mb-4 text-sm">{error}</p>
               <button onClick={() => { setError(null); handleVerify(); }} className="glass-btn px-4 py-2 rounded-lg">
                 Retry Verification
               </button>
@@ -162,20 +162,20 @@ export default function VerificationPanel({ lat, lng, imageBase64, onSuccess }: 
 
           {result && result.rejected && (
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full flex flex-col gap-4">
-              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-5 flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mb-3">
-                  <XCircle className="w-8 h-8 text-red-400" />
+              <div className="bg-white/10 border border-white/20 rounded-xl p-5 flex flex-col items-center text-center">
+                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-3">
+                  <XCircle className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-red-400 mb-1">Verification Rejected</h3>
+                <h3 className="text-xl font-bold text-white mb-1">Verification Rejected</h3>
                 <p className="text-zinc-300 mb-3 text-sm">{result.message}</p>
                 <div className="flex gap-4 w-full mb-4">
                    <div className="flex-1 bg-black/40 rounded-lg p-3">
                      <p className="text-xs text-zinc-500 mb-0.5">Detected Object</p>
-                     <p className="text-sm text-red-300 font-medium">{result.species}</p>
+                     <p className="text-sm text-white font-medium">{result.species}</p>
                    </div>
                    <div className="flex-1 bg-black/40 rounded-lg p-3">
                      <p className="text-xs text-zinc-500 mb-0.5">Confidence</p>
-                     <p className="text-lg font-semibold font-mono text-red-400">
+                     <p className="text-lg font-semibold font-mono text-white">
                        {result.probability ? `${(result.probability * 100).toFixed(1)}%` : 'N/A'}
                      </p>
                    </div>
@@ -192,23 +192,23 @@ export default function VerificationPanel({ lat, lng, imageBase64, onSuccess }: 
 
           {result && result.success && (
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full flex flex-col gap-4">
-              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mb-3">
-                  <TreePine className="w-8 h-8 text-emerald-400" />
+              <div className="bg-white/10 border border-white/20 rounded-xl p-4 flex flex-col items-center text-center">
+                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-3">
+                  <TreePine className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-emerald-400 mb-1">Tree Verification Success!</h3>
-                <p className="text-zinc-300 mb-2 font-medium">Species: <span className="text-emerald-400">{result.species}</span></p>
+                <h3 className="text-xl font-bold text-white mb-1">Tree Verification Success!</h3>
+                <p className="text-zinc-300 mb-2 font-medium">Species: <span className="text-white">{result.species}</span></p>
                 {/* Confidence bar */}
                 <div className="w-full bg-black/40 rounded-lg p-3 mb-2">
                   <div className="flex justify-between text-xs mb-1">
                     <span className="text-zinc-500">AI Confidence</span>
-                    <span className="text-emerald-400 font-mono font-semibold">
+                    <span className="text-white font-mono font-semibold">
                       {result.probability ? `${(result.probability * 100).toFixed(1)}%` : '—'}
                     </span>
                   </div>
                   <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-700"
+                      className="h-full bg-gradient-to-r from-white to-slate-400 rounded-full transition-all duration-700"
                       style={{ width: `${(result.probability || 0) * 100}%` }}
                     />
                   </div>
@@ -220,7 +220,7 @@ export default function VerificationPanel({ lat, lng, imageBase64, onSuccess }: 
                    </div>
                    <div className="flex-1 bg-black/40 rounded-lg p-3">
                      <p className="text-xs text-zinc-500">Allocated Credits</p>
-                     <p className="text-lg font-semibold font-mono text-emerald-400">{result.credits} kg CO₂</p>
+                     <p className="text-lg font-semibold font-mono text-white">{result.credits} kg CO₂</p>
                    </div>
                 </div>
               </div>
@@ -238,7 +238,7 @@ export default function VerificationPanel({ lat, lng, imageBase64, onSuccess }: 
                   )}
                 </button>
               ) : (
-                <div className="w-full py-4 px-6 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-center font-bold">
+                <div className="w-full py-4 px-6 rounded-xl bg-white/20 text-white border border-white/30 text-center font-bold">
                   NFT Minted Successfully!
                   {hash && (
                      <a href={`https://amoy.polygonscan.com/tx/${hash}`} target="_blank" rel="noreferrer" className="block text-xs underline mt-1 font-normal opacity-80 hover:opacity-100 flex items-center justify-center gap-1">

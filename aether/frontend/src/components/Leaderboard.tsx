@@ -70,7 +70,7 @@ export default function Leaderboard() {
 
   const getBadge = (leader: Leader) => {
     if (leader.credits >= 5000) return { label: 'Carbon Giant', color: 'text-amber-400 bg-amber-400/10 border-amber-400/20', icon: Trophy };
-    if (leader.credits >= 1000) return { label: 'Botanist', color: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20', icon: Leaf };
+    if (leader.credits >= 1000) return { label: 'Botanist', color: 'text-white bg-white/10 border-white/20', icon: Leaf };
     if (leader.species_count >= 3) return { label: 'Pioneer', color: 'text-purple-400 bg-purple-400/10 border-purple-400/20', icon: Zap };
     return null;
   };
@@ -88,7 +88,7 @@ export default function Leaderboard() {
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-6 h-6 animate-spin text-emerald-400" />
+          <Loader2 className="w-6 h-6 animate-spin text-white" />
         </div>
       ) : leaders.length === 0 ? (
         <div className="text-center py-16 flex flex-col items-center gap-3">
@@ -124,7 +124,7 @@ export default function Leaderboard() {
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <span className="text-sm font-mono text-zinc-300 group-hover:text-emerald-400 transition-colors">
+                      <span className="text-sm font-mono text-zinc-300 group-hover:text-white transition-colors">
                         {user.address.slice(0, 8)}...{user.address.slice(-6)}
                       </span>
                     </td>

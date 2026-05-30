@@ -226,8 +226,8 @@ export default function CaptureProof({ onCapture }: CaptureProofProps) {
         {/* ─── PICKER VIEW ─── */}
         {viewState === 'picker' && (
           <motion.div key="picker" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center">
-            <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
-              <Camera className="w-10 h-10 text-emerald-400" />
+            <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(255,255,255,0.3)]">
+              <Camera className="w-10 h-10 text-white" />
             </div>
             <h3 className="text-2xl font-bold mb-2 tracking-tight">Active Plant Verification</h3>
             <p className="text-zinc-400 mb-8 max-w-sm">
@@ -243,7 +243,7 @@ export default function CaptureProof({ onCapture }: CaptureProofProps) {
                 <ImagePlus className="w-5 h-5" /> Upload Gallery
               </button>
             </div>
-            {errorMsg && <p className="text-red-400 text-sm mt-4">{errorMsg}</p>}
+            {errorMsg && <p className="text-white text-sm mt-4">{errorMsg}</p>}
           </motion.div>
         )}
 
@@ -253,9 +253,9 @@ export default function CaptureProof({ onCapture }: CaptureProofProps) {
             className="w-full max-w-lg flex flex-col items-center">
 
             {cameraError ? (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 text-center w-full">
-                <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" />
-                <p className="text-red-300 text-sm mb-4">{cameraError}</p>
+              <div className="bg-white/10 border border-white/20 rounded-xl p-6 text-center w-full">
+                <AlertTriangle className="w-10 h-10 text-white mx-auto mb-3" />
+                <p className="text-white text-sm mb-4">{cameraError}</p>
                 <div className="flex gap-3 justify-center">
                   <button onClick={resetState} className="glass-btn px-5 py-2 rounded-lg text-sm">
                     Go Back
@@ -268,14 +268,14 @@ export default function CaptureProof({ onCapture }: CaptureProofProps) {
             ) : (
               <>
                 {/* Live Camera Feed */}
-                <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-black border border-emerald-500/20 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
+                <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-black border border-white/20 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
                   <video ref={videoRef} autoPlay playsInline muted
                     className="w-full h-full object-cover" />
 
                   {!cameraReady && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/80">
                       <div className="flex flex-col items-center">
-                        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-2" />
+                        <Loader2 className="w-8 h-8 text-white animate-spin mb-2" />
                         <p className="text-zinc-400 text-sm">Initializing camera...</p>
                       </div>
                     </div>
@@ -295,8 +295,8 @@ export default function CaptureProof({ onCapture }: CaptureProofProps) {
                         style={{ top: '50%' }} />
 
                       {/* GPS badge */}
-                      <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-mono text-emerald-300 flex items-center gap-1.5 border border-emerald-500/20">
-                        <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                      <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-mono text-white flex items-center gap-1.5 border border-white/20">
+                        <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
                         LIVE {location ? `${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}` : 'GPS...'}
                       </div>
                     </>
@@ -312,7 +312,7 @@ export default function CaptureProof({ onCapture }: CaptureProofProps) {
 
                   <button onClick={captureFrame} disabled={!cameraReady}
                     className="w-20 h-20 rounded-full bg-white flex items-center justify-center disabled:opacity-30 transition-all hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(255,255,255,0.3)] group">
-                    <Circle className="w-16 h-16 text-zinc-300 group-hover:text-emerald-500 transition-colors" fill="currentColor" />
+                    <Circle className="w-16 h-16 text-zinc-300 group-hover:text-white transition-colors" fill="currentColor" />
                   </button>
 
                   <div className="w-12 h-12" /> {/* Spacer for symmetry */}

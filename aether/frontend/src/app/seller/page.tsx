@@ -409,7 +409,7 @@ export default function SellerDashboard() {
                           <button
                             disabled={growingTokenId === listing.token_id || loadingGrowth}
                             onClick={() => handleRecordGrowth(listing.token_id)}
-                            className="px-2.5 py-1 bg-[var(--fern)]/10 border border-[var(--fern)]/25 hover:bg-[var(--fern)]/20 text-[var(--fern)] text-[10px] font-black rounded-lg cursor-pointer transition-colors disabled:opacity-50 flex items-center gap-1"
+                            className="glass-btn px-2.5 py-1 text-[10px] rounded-lg cursor-pointer disabled:opacity-50 flex items-center gap-1"
                           >
                             {growingTokenId === listing.token_id ? (
                               <><Loader2 className="w-2.5 h-2.5 animate-spin" /> Evolving...</>
@@ -421,7 +421,7 @@ export default function SellerDashboard() {
                           <button
                             disabled={cancellingTokenId === listing.token_id || loadingGrowth}
                             onClick={() => handleCancelListing(listing.token_id)}
-                            className="px-2.5 py-1 bg-red-500/10 border border-red-500/25 hover:bg-red-500/20 text-red-500 text-[10px] font-black rounded-lg cursor-pointer transition-colors disabled:opacity-50 flex items-center gap-1"
+                            className="px-2.5 py-1 bg-red-500/10 border border-red-500/25 hover:bg-red-500/20 text-red-400 backdrop-blur-[8px] text-[10px] font-black rounded-lg cursor-pointer transition-colors disabled:opacity-50 flex items-center gap-1"
                           >
                             {cancellingTokenId === listing.token_id ? (
                               <><Loader2 className="w-2.5 h-2.5 animate-spin" /> Cancelling...</>
@@ -465,7 +465,7 @@ export default function SellerDashboard() {
             </div>
             <Link
               href="/"
-              className="px-5 py-2.5 bg-[var(--fern)] hover:bg-[var(--hunter-green)] text-white text-xs font-black rounded-xl uppercase tracking-widest transition-all flex items-center gap-2 shrink-0 shadow-md"
+              className="glass-btn-primary px-5 py-2.5 text-xs rounded-xl uppercase tracking-widest transition-all flex items-center gap-2 shrink-0 shadow-md"
             >
               <TreePine className="w-3.5 h-3.5" /> Go to Minting →
             </Link>

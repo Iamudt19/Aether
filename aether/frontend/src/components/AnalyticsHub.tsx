@@ -91,7 +91,7 @@ export default function AnalyticsHub() {
   if (loading) {
     return (
       <div className="w-full flex items-center justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin text-emerald-400" />
+        <Loader2 className="w-6 h-6 animate-spin text-white" />
       </div>
     );
   }
@@ -117,7 +117,7 @@ export default function AnalyticsHub() {
           </div>
         </div>
 
-        <div className="glass-panel p-5 rounded-2xl border border-white/5 bg-zinc-950/40 relative overflow-hidden group hover:border-blue-500/20 transition-all">
+        <div className="glass-panel p-5 rounded-2xl border border-white/5 bg-zinc-950/40 relative overflow-hidden group hover:border-white/20 transition-all">
           <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-xl pointer-events-none" />
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-500/10 rounded-xl border border-blue-500/20 flex items-center justify-center">
@@ -145,7 +145,7 @@ export default function AnalyticsHub() {
           {/* Area Chart */}
           <div className="glass-panel p-6 rounded-2xl border border-white/5 bg-zinc-950/40 lg:col-span-2 flex flex-col h-[350px]">
             <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
-              <BarChart3 className="text-emerald-500 w-5 h-5" /> Sequestration Over Time
+              <BarChart3 className="text-white w-5 h-5" /> Sequestration Over Time
             </h3>
             <div className="flex-1 w-full">
               <ResponsiveContainer width="100%" height="100%">

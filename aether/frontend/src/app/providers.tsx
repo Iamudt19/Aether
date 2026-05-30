@@ -20,14 +20,14 @@ function RainbowKitThemeWrapper({ children }: { children: React.ReactNode }) {
   return (
     <RainbowKitProvider 
       theme={theme === 'dark' ? darkTheme({
-        accentColor: '#588157', // Fern green accent
-        accentColorForeground: '#dad7cd', // Dust grey contrast
+        accentColor: '#c0c0c0', // Silver accent for monochrome
+        accentColorForeground: '#0a0a0a', // Black contrast
         borderRadius: 'large',
         fontStack: 'system',
         overlayBlur: 'small',
-      }) : lightTheme({
-        accentColor: '#3a5a40', // Hunter green accent
-        accentColorForeground: '#f5f4f0', // Soft stone contrast
+      }) : darkTheme({
+        accentColor: '#c0c0c0', // Silver accent
+        accentColorForeground: '#0a0a0a', // Black contrast
         borderRadius: 'large',
         fontStack: 'system',
         overlayBlur: 'small',
