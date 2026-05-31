@@ -45,13 +45,15 @@ export async function identifyPlant(base64Image: string) {
       : isPlant
       ? 0.95
       : 0.1;
+  const isValidPlant = isPlant && isPlantProbability >= 0.5;
+
   if (data.suggestions && data.suggestions.length > 0) {
     const top = data.suggestions[0];
     return {
       is_plant: isPlant,
       is_plant_probability: isPlantProbability,
-      species: top.plant_name || "Unknown",
-      probability: top.probability || 0,
+      species: isValidPlant ? (top.plant_name || "Unknown") : "Non-Plant Object",
+      probability: isValidPlant ? (top.probability || 0) : isPlantProbability,
     };
   }
   return { is_plant: isPlant, is_plant_probability: isPlantProbability, species: "Unknown", probability: 0 };
