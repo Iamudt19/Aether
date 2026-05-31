@@ -96,6 +96,7 @@ export default function SellerDashboard() {
         .from('carbon_listings')
         .select('*')
         .eq('seller_address', address.toLowerCase())
+        .in('status', ['active', 'sold'])
         .order('created_at', { ascending: false });
 
       if (!error && data) {
