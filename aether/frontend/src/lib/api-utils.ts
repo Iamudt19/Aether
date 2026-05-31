@@ -20,6 +20,49 @@ export function getAISigner(): ethers.Wallet {
   return _aiSigner;
 }
 
+export function isTree(plantName: string, commonNames: string[] = [], taxonomy: any = {}): boolean {
+  const name = plantName.toLowerCase();
+  
+  // 1. List of known tree genera (scientific name starts with these or taxonomy genus matches)
+  const treeGenera = [
+    "ficus", "mangifera", "azadirachta", "moringa", "cocos", "phoenix", "quercus", "acer", "pinus",
+    "betula", "fraxinus", "ulmus", "salix", "populus", "eucalyptus", "cedrus", "picea", "abies",
+    "cupressus", "sequoia", "prunus", "malus", "citrus", "olea", "platanus", "acacia", "adansonia",
+    "bambusa", "castanea", "fagus", "tilia", "juglans", "carya", "pyrus", "swietenia", "cedrela",
+    "tectona", "dalbergia", "shorea", "pterocarpus", "santol", "alstonia", "jacaranda", "delonix",
+    "albizia", "cassia", "erythrina", "bauhinia", "peltophorum", "spathodea", "tabebuia"
+  ];
+  
+  const genus = taxonomy?.genus?.toLowerCase() || name.split(" ")[0];
+  if (treeGenera.includes(genus)) {
+    return true;
+  }
+  
+  // 2. Keywords in common names or scientific name that identify trees
+  const treeKeywords = [
+    "tree", "palm", "pine", "oak", "maple", "birch", "willow", "cypress", "spruce", "fir", "cedar",
+    "redwood", "fig", "neem", "moringa", "mango", "bamboo", "ash", "elm", "beech", "walnut", "chestnut",
+    "poplar", "eucalyptus", "baobab", "larch", "hemlock", "juniper", "yew", "alder", "magnolia", "cherry",
+    "peach", "plum", "apple", "pear", "orange", "lemon", "lime", "avocado", "olive", "jacaranda",
+    "banyan", "gulmohar", "mahogany", "teak", "rosewood", "sal tree", "peepal", "sacred fig"
+  ];
+  
+  // Check scientific name
+  if (treeKeywords.some(keyword => name.includes(keyword))) {
+    return true;
+  }
+  
+  // Check common names
+  if (commonNames.some(cn => {
+    const cnLower = cn.toLowerCase();
+    return treeKeywords.some(keyword => cnLower.includes(keyword));
+  })) {
+    return true;
+  }
+  
+  return false;
+}
+
 // ─── Plant.id ─────────────────────────────────────────────────────────────────
 export async function identifyPlant(base64Image: string) {
   const PLANT_ID_API_KEY = process.env.PLANT_ID_API_KEY;
@@ -54,9 +97,11 @@ export async function identifyPlant(base64Image: string) {
       is_plant_probability: isPlantProbability,
       species: isValidPlant ? (top.plant_name || "Unknown") : "Non-Plant Object",
       probability: isValidPlant ? (top.probability || 0) : 0.0,
+      common_names: top.plant_details?.common_names || [],
+      taxonomy: top.plant_details?.taxonomy || {},
     };
   }
-  return { is_plant: isPlant, is_plant_probability: isPlantProbability, species: "Unknown", probability: 0 };
+  return { is_plant: isPlant, is_plant_probability: isPlantProbability, species: "Unknown", probability: 0, common_names: [], taxonomy: {} };
 }
 
 // Google Vision removed: detectImageLabels function deleted.

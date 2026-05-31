@@ -23,11 +23,15 @@ interface Listing {
   credits: number;
   price_inr: number;
   tx_hash: string;
-  token_id: number;
+  token_id: number | null;
   status: 'active' | 'sold';
   created_at: string;
   lat?: number;
   lng?: number;
+}
+
+function isVerifiedWalletTransaction(txHash?: string | null) {
+  return typeof txHash === 'string' && /^0x[a-fA-F0-9]{64}$/.test(txHash);
 }
 
 function StatCard({ icon: Icon, label, value, sub, color = 'emerald' }: any) {
@@ -97,10 +101,11 @@ export default function SellerDashboard() {
         .select('*')
         .eq('seller_address', address.toLowerCase())
         .eq('status', 'active')
+        .not('token_id', 'is', null)
         .order('created_at', { ascending: false });
 
       if (!error && data) {
-        setListings(data);
+        setListings(data.filter((listing) => listing.token_id !== null && isVerifiedWalletTransaction(listing.tx_hash)));
       } else {
         setListings([]);
       }
@@ -398,7 +403,7 @@ export default function SellerDashboard() {
                         <div className="flex items-center gap-1.5">
                           <button
                             disabled={growingTokenId === listing.token_id || loadingGrowth}
-                            onClick={() => handleRecordGrowth(listing.token_id)}
+                            onClick={() => handleRecordGrowth(listing.token_id!)}
                             className="glass-btn px-2.5 py-1 text-[10px] rounded-lg cursor-pointer disabled:opacity-50 flex items-center gap-1"
                           >
                             {growingTokenId === listing.token_id ? (
@@ -410,7 +415,7 @@ export default function SellerDashboard() {
 
                           <button
                             disabled={cancellingTokenId === listing.token_id || loadingGrowth}
-                            onClick={() => handleCancelListing(listing.token_id)}
+                            onClick={() => handleCancelListing(listing.token_id!)}
                             className="px-2.5 py-1 bg-red-500/10 border border-red-500/25 hover:bg-red-500/20 text-red-400 backdrop-blur-[8px] text-[10px] font-black rounded-lg cursor-pointer transition-colors disabled:opacity-50 flex items-center gap-1"
                           >
                             {cancellingTokenId === listing.token_id ? (

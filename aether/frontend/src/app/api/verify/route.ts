@@ -6,6 +6,7 @@ import {
   uploadMetadataToPinata,
   getAISigner,
   supabaseAdmin,
+  isTree,
 } from "@/lib/api-utils";
 
 function getAllocationMatrix(score: number) {
@@ -39,6 +40,8 @@ export async function POST(req: NextRequest) {
       species: "Generic Flora",
       probability: 0.5,
       api_failed: false,
+      common_names: [] as string[],
+      taxonomy: {} as any,
     };
 
     try {
@@ -70,21 +73,27 @@ export async function POST(req: NextRequest) {
     const taxonomyProb = plantResult.probability || 0;
     const verificationScore = (taxonomyProb * 0.7) + (isPlantProb * 0.3);
     const allocation = getAllocationMatrix(verificationScore);
+    const isPlantTree = isTree(plantResult.species, plantResult.common_names, plantResult.taxonomy);
 
-    if (!plantResult.is_plant || isPlantProb < 0.95 || taxonomyProb < 0.95 || verificationScore < 0.95 || !allocation) {
+    if (!plantResult.is_plant || isPlantProb < 0.95 || taxonomyProb < 0.95 || verificationScore < 0.95 || !allocation || !isPlantTree) {
       console.warn(
-        `🚫 Verification failed: isPlant=${plantResult.is_plant}, isPlantProb=${isPlantProb.toFixed(2)}, taxonomyProb=${taxonomyProb.toFixed(2)}, score=${verificationScore.toFixed(2)}`
+        `🚫 Verification failed: isPlant=${plantResult.is_plant}, isPlantProb=${isPlantProb.toFixed(2)}, taxonomyProb=${taxonomyProb.toFixed(2)}, score=${verificationScore.toFixed(2)}, isTree=${isPlantTree}`
       );
+      
+      const rejectMessage = !isPlantTree 
+        ? `Visual verification failed: Identified object (${plantResult.species}) is not classified as a valid tree species. Please capture a clear, high-resolution photo of a real tree outdoors.`
+        : "Visual verification failed: only clearly verified tree species can receive carbon offset credits. Please upload a clear photo of your tree outdoors.";
+
       return NextResponse.json({
         success: false,
         rejected: true,
-        species: plantResult.species || "Non-Plant Object",
+        species: plantResult.species || "Non-Tree Object",
         probability: taxonomyProb,
         is_plant: plantResult.is_plant,
         is_plant_probability: isPlantProb,
         verification_score: verificationScore,
         showConfidence: false,
-        message: "Visual verification failed: only clearly verified plants can receive credits. Please upload a clear tree photo outdoors.",
+        message: rejectMessage,
       });
     }
 

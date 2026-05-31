@@ -52,7 +52,10 @@ export default function MarketplaceGallery({ refreshToggle }: { refreshToggle: n
         const json = await res.json();
 
         if (json.success && json.listings.length > 0) {
-          const mapped = json.listings.map((l: any) => ({
+          const verifiedList = json.listings.filter(
+            (l: any) => l.token_id !== null && typeof l.tx_hash === 'string' && /^0x[a-fA-F0-9]{64}$/.test(l.tx_hash)
+          );
+          const mapped = verifiedList.map((l: any) => ({
             id: l.id,
             credits: l.credits,
             lat: l.lat?.toFixed(4) || 'N/A',

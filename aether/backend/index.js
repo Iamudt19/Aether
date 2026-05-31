@@ -33,6 +33,49 @@ console.log(`✅  AI Signer Address: ${aiSigner.address}`);
 
 // ─── Plant.id & Pinata Services ───────────────────────────────────────────────
 
+function isTree(plantName, commonNames = [], taxonomy = {}) {
+  const name = plantName.toLowerCase();
+  
+  // 1. List of known tree genera (scientific name starts with these or taxonomy genus matches)
+  const treeGenera = [
+    "ficus", "mangifera", "azadirachta", "moringa", "cocos", "phoenix", "quercus", "acer", "pinus",
+    "betula", "fraxinus", "ulmus", "salix", "populus", "eucalyptus", "cedrus", "picea", "abies",
+    "cupressus", "sequoia", "prunus", "malus", "citrus", "olea", "platanus", "acacia", "adansonia",
+    "bambusa", "castanea", "fagus", "tilia", "juglans", "carya", "pyrus", "swietenia", "cedrela",
+    "tectona", "dalbergia", "shorea", "pterocarpus", "santol", "alstonia", "jacaranda", "delonix",
+    "albizia", "cassia", "erythrina", "bauhinia", "peltophorum", "spathodea", "tabebuia"
+  ];
+  
+  const genus = taxonomy?.genus?.toLowerCase() || name.split(" ")[0];
+  if (treeGenera.includes(genus)) {
+    return true;
+  }
+  
+  // 2. Keywords in common names or scientific name that identify trees
+  const treeKeywords = [
+    "tree", "palm", "pine", "oak", "maple", "birch", "willow", "cypress", "spruce", "fir", "cedar",
+    "redwood", "fig", "neem", "moringa", "mango", "bamboo", "ash", "elm", "beech", "walnut", "chestnut",
+    "poplar", "eucalyptus", "baobab", "larch", "hemlock", "juniper", "yew", "alder", "magnolia", "cherry",
+    "peach", "plum", "apple", "pear", "orange", "lemon", "lime", "avocado", "olive", "jacaranda",
+    "banyan", "gulmohar", "mahogany", "teak", "rosewood", "sal tree", "peepal", "sacred fig"
+  ];
+  
+  // Check scientific name
+  if (treeKeywords.some(keyword => name.includes(keyword))) {
+    return true;
+  }
+  
+  // Check common names
+  if (commonNames.some(cn => {
+    const cnLower = cn.toLowerCase();
+    return treeKeywords.some(keyword => cnLower.includes(keyword));
+  })) {
+    return true;
+  }
+  
+  return false;
+}
+
 async function identifyPlant(base64Image) {
   const PLANT_ID_API_KEY = process.env.PLANT_ID_API_KEY;
   if (!PLANT_ID_API_KEY) throw new Error("Missing Plant.id API key");
@@ -57,10 +100,12 @@ async function identifyPlant(base64Image) {
       is_plant: isPlant, 
       is_plant_probability: isPlantProbability, 
       species: isValidPlant ? (top.plant_name || "Unknown") : "Non-Plant Object", 
-      probability: isValidPlant ? (top.probability || 0) : 0.0
+      probability: isValidPlant ? (top.probability || 0) : 0.0,
+      common_names: top.plant_details?.common_names || [],
+      taxonomy: top.plant_details?.taxonomy || {},
     };
   }
-  return { is_plant: isPlant, is_plant_probability: isPlantProbability, species: "Unknown", probability: 0 };
+  return { is_plant: isPlant, is_plant_probability: isPlantProbability, species: "Unknown", probability: 0, common_names: [], taxonomy: {} };
 }
 
 // Google Vision removed from backend.
@@ -153,19 +198,25 @@ app.post("/api/verify", async (req, res) => {
     const taxonomyProb = plantResult.probability || 0;
     const combinedScore = (taxonomyProb * 0.7) + (isPlantProb * 0.3);
     const allocation = getAllocationMatrix(combinedScore);
+    const isPlantTree = isTree(plantResult.species, plantResult.common_names, plantResult.taxonomy);
 
-    if (!plantResult.is_plant || isPlantProb < 0.95 || taxonomyProb < 0.95 || combinedScore < 0.95 || !allocation) {
-      console.warn(`🚫 Verification failed: plant check failed (isPlant=${plantResult.is_plant}, isPlantProb=${isPlantProb.toFixed(2)}, taxonomyProb=${taxonomyProb.toFixed(2)}, combined=${combinedScore.toFixed(2)})`);
+    if (!plantResult.is_plant || isPlantProb < 0.95 || taxonomyProb < 0.95 || combinedScore < 0.95 || !allocation || !isPlantTree) {
+      console.warn(`🚫 Verification failed: plant check failed (isPlant=${plantResult.is_plant}, isPlantProb=${isPlantProb.toFixed(2)}, taxonomyProb=${taxonomyProb.toFixed(2)}, combined=${combinedScore.toFixed(2)}, isTree=${isPlantTree})`);
+      
+      const rejectMessage = !isPlantTree 
+        ? `Visual verification failed: Identified object (${plantResult.species}) is not classified as a valid tree species. Please capture a clear, high-resolution photo of a real tree outdoors.`
+        : "Visual verification failed: only clearly verified tree species can receive carbon offset credits. Please upload a clear photo of your tree outdoors.";
+
       return res.status(200).json({
         success: false,
         rejected: true,
-        species: plantResult.species || "Non-Plant Object",
+        species: plantResult.species || "Non-Tree Object",
         probability: taxonomyProb,
         is_plant: plantResult.is_plant,
         is_plant_probability: isPlantProb,
         verification_score: combinedScore,
         showConfidence: false,
-        message: "Visual verification failed: AI confidence is insufficient or object is not a verified plant. Please upload a clear photo of your tree outdoors."
+        message: rejectMessage
       });
     }
 
@@ -385,12 +436,28 @@ app.get("/api/purchases/:userId", async (req, res) => {
   }
 });
 
+function isVerifiedWalletTransaction(txHash) {
+  return typeof txHash === 'string' && /^0x[a-fA-F0-9]{64}$/.test(txHash);
+}
+
 /** GET /api/listings */
 app.get("/api/listings", async (req, res) => {
   try {
-    const { data, error } = await supabaseAdmin.from("carbon_listings").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(100);
+    const { data, error } = await supabaseAdmin
+      .from("carbon_listings")
+      .select("*")
+      .eq("status", "active")
+      .not("token_id", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(100);
+      
     if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json({ success: true, listings: data || [] });
+    
+    const verified = (data || []).filter(
+      (l) => l.token_id !== null && isVerifiedWalletTransaction(l.tx_hash)
+    );
+    
+    return res.status(200).json({ success: true, listings: verified });
   } catch (err) {
     return res.status(500).json({ error: "Internal server error" });
   }
@@ -400,9 +467,21 @@ app.get("/api/listings", async (req, res) => {
 app.get("/api/listings/:sellerAddress", async (req, res) => {
   try {
     const { sellerAddress } = req.params;
-    const { data, error } = await supabaseAdmin.from("carbon_listings").select("*").eq("seller_address", sellerAddress.toLowerCase()).order("created_at", { ascending: false });
+    const { data, error } = await supabaseAdmin
+      .from("carbon_listings")
+      .select("*")
+      .eq("seller_address", sellerAddress.toLowerCase())
+      .eq("status", "active")
+      .not("token_id", "is", null)
+      .order("created_at", { ascending: false });
+      
     if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json({ success: true, listings: data || [] });
+    
+    const verified = (data || []).filter(
+      (l) => l.token_id !== null && isVerifiedWalletTransaction(l.tx_hash)
+    );
+    
+    return res.status(200).json({ success: true, listings: verified });
   } catch (err) {
     return res.status(500).json({ error: "Internal server error" });
   }
