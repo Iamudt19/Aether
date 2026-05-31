@@ -3,26 +3,26 @@
 
 /* ─── Modern Monochrome Design System (Dark Charcoal, Silver, White & Grey) ─── */
 :root {
-  --color-background: #121212; /* Darker charcoal background */
-  --color-foreground: #e0e0e0; /* Softer, slightly darker white for text */
+  --color-background: #030712; /* pitch-black cyber background (extremely sleeker) */
+  --color-foreground: #ffffff; /* pure white text for high tech contrast */
   
-  --dust-grey: #909090;
-  --dry-sage: #b0b0b0;
-  --fern: #e0e0e0;
-  --hunter-green: #e0e0e0;
-  --pine-teal: #121212;
+  --dust-grey: #00FF66; /* Vibrant cyber electric green */
+  --dry-sage: #00FF66;
+  --fern: #00FF66;
+  --hunter-green: #ffffff;
+  --pine-teal: #020408;
   
-  --glass-bg: rgba(255, 255, 255, 0.07); /* Semi-transparent white glass effect */
-  --glass-border: rgba(192, 192, 192, 0.22); /* Silver borders */
+  --glass-bg: rgba(9, 13, 22, 0.72); /* frosted carbon dark glass */
+  --glass-border: rgba(0, 255, 102, 0.12); /* high-tech neon green borders */
   
-  --text-primary: #e8e8e8; /* Soft white for primary text */
-  --text-secondary: #c0c0c0; /* Light grey for sub-headers */
-  --text-muted: #808080; /* Medium grey for indicators */
+  --text-primary: #ffffff; /* crisp high-contrast white */
+  --text-secondary: #94a3b8; /* silver slate text for descriptions */
+  --text-muted: #00cc52; /* neon green highlights */
   
-  --accent: #c0c0c0;
-  --accent-hover: #e8e8e8;
+  --accent: #00FF66;
+  --accent-hover: #ffffff;
   
-  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  --card-shadow: 0 10px 40px 0 rgba(0, 255, 102, 0.03), 0 8px 32px 0 rgba(0, 0, 0, 0.8);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -92,91 +92,59 @@ body {
   background: rgba(192, 192, 192, 0.6);
 }
 
-/* ─── Premium Glassmorphic Buttons ─── */
+/* ─── Premium Cyber Glassmorphic Buttons ─── */
 .glass-btn {
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(16px) saturate(1.4);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  border: 1.5px solid rgba(192, 192, 192, 0.4);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  border: 1px solid rgba(0, 255, 102, 0.2);
   color: #ffffff !important;
-  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.1), 0 0 40px rgba(192, 192, 192, 0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
   font-weight: 600;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-
-.glass-btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 100%);
-  pointer-events: none;
 }
 
 .glass-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(192, 192, 192, 0.6);
-  box-shadow: 0 12px 32px rgba(255, 255, 255, 0.15), 0 0 60px rgba(192, 192, 192, 0.15);
-  transform: translateY(-2px);
-  animation: shimmer 0.6s ease-in-out;
-}
-
-.glass-btn:active:not(:disabled) {
-  transform: translateY(0);
+  background: rgba(0, 255, 102, 0.08);
+  border-color: rgba(0, 255, 102, 0.5);
+  box-shadow: 0 0 15px rgba(0, 255, 102, 0.15);
+  transform: translateY(-1px);
 }
 
 .glass-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  filter: grayscale(100%);
 }
 
 .glass-btn-primary {
-  background: rgba(192, 192, 192, 0.22);
-  backdrop-filter: blur(18px) saturate(1.5);
-  -webkit-backdrop-filter: blur(18px) saturate(1.5);
-  border: 1.5px solid rgba(192, 192, 192, 0.5);
+  background: rgba(0, 255, 102, 0.18);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  border: 1px solid rgba(0, 255, 102, 0.45);
   color: #ffffff !important;
-  box-shadow: 0 8px 32px rgba(192, 192, 192, 0.15), 0 0 50px rgba(192, 192, 192, 0.08);
+  box-shadow: 0 0 20px rgba(0, 255, 102, 0.15);
   font-weight: 700;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-
-.glass-btn-primary::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
-  pointer-events: none;
 }
 
 .glass-btn-primary:hover:not(:disabled) {
-  background: rgba(192, 192, 192, 0.32);
-  border-color: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 12px 40px rgba(192, 192, 192, 0.25), 0 0 60px rgba(192, 192, 192, 0.2);
-  transform: translateY(-2px);
-  animation: shimmer 0.6s ease-in-out;
-}
-
-.glass-btn-primary:active:not(:disabled) {
-  transform: translateY(0);
+  background: rgba(0, 255, 102, 0.32);
+  border-color: #00FF66;
+  box-shadow: 0 0 25px rgba(0, 255, 102, 0.35);
+  transform: translateY(-1px);
 }
 
 .glass-btn-primary:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  filter: grayscale(100%);
 }
 
 @keyframes shimmer {
