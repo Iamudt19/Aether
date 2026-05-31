@@ -313,6 +313,136 @@ app.post("/api/verify", async (req, res) => {
   }
 });
 
+// ─── Direct Database Management Endpoints (Bypassing Client-side RLS) ───────
+
+/**
+ * POST /api/listings/confirm
+ * Body: { txHash, userAddress, signature }
+ */
+app.post("/api/listings/confirm", async (req, res) => {
+  try {
+    const { txHash, userAddress } = req.body;
+    if (!userAddress) return res.status(400).json({ error: "userAddress is required" });
+    
+    // Find latest listing without a token_id for this seller
+    const { data: listings, error: fetchErr } = await supabaseAdmin
+      .from("carbon_listings")
+      .select("id")
+      .eq("seller_address", userAddress.toLowerCase())
+      .is("token_id", null)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (fetchErr || !listings || listings.length === 0) {
+      console.warn("⚠️ No unconfirmed listing found for:", userAddress);
+      return res.status(200).json({ success: false, message: "No unconfirmed listing found." });
+    }
+
+    const listingId = listings[0].id;
+
+    // Count already confirmed listings to assign a unique incremental token ID
+    const { count, error: countErr } = await supabaseAdmin
+      .from("carbon_listings")
+      .select("*", { count: 'exact', head: true })
+      .not("token_id", "is", null);
+
+    const newTokenId = countErr ? Math.floor(Math.random() * 900) + 100 : (count + 1);
+
+    const { error: updateErr } = await supabaseAdmin
+      .from("carbon_listings")
+      .update({
+        token_id: newTokenId,
+        tx_hash: txHash,
+      })
+      .eq("id", listingId);
+
+    if (updateErr) throw updateErr;
+
+    console.log(`✅ Listing ${listingId} confirmed with Token ID #${newTokenId}`);
+    return res.status(200).json({ success: true, tokenId: newTokenId });
+  } catch (err) {
+    console.error("Error in /api/listings/confirm:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+/**
+ * POST /api/listings/buy
+ * Body: { txHash, tokenId, buyerAddress, userSessionId }
+ */
+app.post("/api/listings/buy", async (req, res) => {
+  try {
+    const { txHash, tokenId, buyerAddress, userSessionId } = req.body;
+    console.log(`🛒  Processing purchase for Token #${tokenId} by ${buyerAddress}`);
+
+    // Update listing status to sold
+    const { data: listing, error: updateErr } = await supabaseAdmin
+      .from("carbon_listings")
+      .update({ status: "sold" })
+      .eq("token_id", tokenId)
+      .select()
+      .single();
+
+    if (updateErr) {
+      console.error("⚠️ Failed to update listing to sold:", updateErr.message);
+      return res.status(400).json({ error: "Failed to update listing to sold" });
+    }
+
+    // Insert purchase record for the buyer log
+    const { error: insertErr } = await supabaseAdmin
+      .from("carbon_purchases")
+      .insert({
+        payment_id: txHash,
+        order_id: `order_${Date.now()}`,
+        amount_inr: listing.price_inr,
+        credits_kg: listing.credits,
+        status: "captured",
+        user_id: userSessionId || null,
+        species: listing.species,
+        created_at: new Date().toISOString(),
+      });
+
+    if (insertErr) {
+      console.error("⚠️ Failed to insert purchase record:", insertErr.message);
+    } else {
+      console.log(`✅ Purchase logged in database for buyer ${buyerAddress}`);
+    }
+
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.error("Error in /api/listings/buy:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+/**
+ * DELETE /api/listings
+ * Body: { tokenId, userAddress }
+ */
+app.delete("/api/listings", async (req, res) => {
+  try {
+    const { tokenId, userAddress } = req.body;
+    console.log(`❌  Cancelling listing for Token #${tokenId} by ${userAddress}`);
+
+    const { error } = await supabaseAdmin
+      .from("carbon_listings")
+      .update({ status: "inactive" })
+      .eq("token_id", tokenId)
+      .eq("seller_address", userAddress.toLowerCase());
+
+    if (error) {
+      console.error("⚠️ Failed to deactivate listing:", error.message);
+      return res.status(400).json({ error: "Failed to deactivate listing" });
+    }
+
+    console.log(`✅  Listing for Token #${tokenId} deactivated successfully.`);
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.error("Error in DELETE /api/listings:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // ─── Data API Endpoints ───────────────────────────────────────────────────────
 
 /** GET /api/purchases/:userId */

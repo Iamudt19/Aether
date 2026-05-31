@@ -96,7 +96,7 @@ export default function SellerDashboard() {
         .from('carbon_listings')
         .select('*')
         .eq('seller_address', address.toLowerCase())
-        .in('status', ['active', 'sold'])
+        .eq('status', 'active')
         .order('created_at', { ascending: false });
 
       if (!error && data) {
@@ -121,14 +121,20 @@ export default function SellerDashboard() {
     setCancellingTokenId(tokenId);
 
     try {
-      // Deactivate status in Supabase directly since listings are managed off-chain for zero-gas browsing
-      const { error } = await supabase
-        .from('carbon_listings')
-        .update({ status: 'inactive' })
-        .eq('token_id', tokenId)
-        .eq('seller_address', address.toLowerCase());
+      // Request secure deactivation via backend endpoint to avoid client-side RLS limits
+      const res = await fetch(`${BACKEND_URL}/api/listings`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tokenId,
+          userAddress: address,
+        }),
+      });
 
-      if (error) throw error;
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || 'Deactivation request failed');
+      }
 
       alert(`Successfully cancelled Token #${tokenId} listing! It is now inactive in the marketplace.`);
       fetchListings();
