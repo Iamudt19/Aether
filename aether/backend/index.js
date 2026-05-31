@@ -197,26 +197,25 @@ app.post("/api/verify", async (req, res) => {
       });
     }
 
-    if (!plantResult.is_plant || plantResult.is_plant_probability < 0.5) {
+    // Stronger verification matrix:
+    // - require Plant.id to flag as plant with good probability
+    // - require taxonomy suggestion probability to be high
+    // - combine both scores into a verification_score and require a high threshold
+    const isPlantProb = plantResult.is_plant_probability || 0;
+    const taxonomyProb = plantResult.probability || 0;
+    const combinedScore = (taxonomyProb * 0.7) + (isPlantProb * 0.3);
+
+    if (!plantResult.is_plant || isPlantProb < 0.75 || taxonomyProb < 0.85 || combinedScore < 0.85) {
+      console.warn(`🚫 Verification failed: plant check failed (isPlant=${plantResult.is_plant}, isPlantProb=${isPlantProb.toFixed(2)}, taxonomyProb=${taxonomyProb.toFixed(2)}, combined=${combinedScore.toFixed(2)})`);
       return res.status(200).json({
         success: false,
         rejected: true,
         species: plantResult.species || "Non-Plant Object",
-        probability: plantResult.probability,
+        probability: taxonomyProb,
         is_plant: plantResult.is_plant,
-        is_plant_probability: plantResult.is_plant_probability,
-        message: "Object identified is not a valid plant. Please upload a clear photo of your tree."
-      });
-    }
-    if (plantResult.probability < 0.8) {
-      return res.status(200).json({
-        success: false,
-        rejected: true,
-        species: plantResult.species,
-        probability: plantResult.probability,
-        is_plant: plantResult.is_plant,
-        is_plant_probability: plantResult.is_plant_probability,
-        message: `AI confidence is too low (${(plantResult.probability * 100).toFixed(1)}%). Please upload a clearer photo.`
+        is_plant_probability: isPlantProb,
+        verification_score: combinedScore,
+        message: "Visual verification failed: AI confidence is insufficient or object is not a verified plant. Please upload a clear photo of your tree outdoors."
       });
     }
 

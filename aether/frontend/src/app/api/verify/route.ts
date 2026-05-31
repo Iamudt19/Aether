@@ -62,27 +62,20 @@ export async function POST(req: NextRequest) {
           message: "Verification service is currently offline or the API limit is reached. Please try again later.",
         });
       }
-
-      if (!plantResult.is_plant || plantResult.is_plant_probability < 0.5) {
+      // Stronger verification matrix on frontend as well
+      const isPlantProb = plantResult.is_plant_probability || 0;
+      const taxonomyProb = plantResult.probability || 0;
+      const combinedScore = (taxonomyProb * 0.7) + (isPlantProb * 0.3);
+      if (plantResult.api_failed || !plantResult.is_plant || isPlantProb < 0.75 || taxonomyProb < 0.85 || combinedScore < 0.85) {
         return NextResponse.json({
           success: false,
           rejected: true,
           species: plantResult.species || "Non-Plant Object",
-          probability: plantResult.probability,
+          probability: taxonomyProb,
           is_plant: plantResult.is_plant,
-          is_plant_probability: plantResult.is_plant_probability,
-          message: "Object identified is not a valid plant. Please upload a clear photo of your tree.",
-        });
-      }
-      if (plantResult.probability < 0.8) {
-        return NextResponse.json({
-          success: false,
-          rejected: true,
-          species: plantResult.species,
-          probability: plantResult.probability,
-          is_plant: plantResult.is_plant,
-          is_plant_probability: plantResult.is_plant_probability,
-          message: `AI confidence is too low (${(plantResult.probability * 100).toFixed(1)}%). Please upload a clearer photo.`,
+          is_plant_probability: isPlantProb,
+          verification_score: combinedScore,
+          message: "Visual verification failed: AI confidence is insufficient or object is not a verified plant. Please upload a clear photo of your tree outdoors.",
         });
       }
 
