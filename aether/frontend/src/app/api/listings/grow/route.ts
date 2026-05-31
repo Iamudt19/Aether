@@ -9,6 +9,14 @@ import {
 import abi from "@/lib/abi.json";
 import { contractAddress } from "@/lib/constants";
 
+function getGrowthAllocation(score: number) {
+  if (score >= 0.98) return 15;
+  if (score >= 0.97) return 12;
+  if (score >= 0.96) return 10;
+  if (score >= 0.95) return 7;
+  return null;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { tokenId, imageBase64, userAddress } = await req.json();
@@ -35,8 +43,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Active listing not found for this wallet" }, { status: 404 });
     }
 
-    const bypassAntiFraud = process.env.BYPASS_ANTI_FRAUD === "true";
-
     // 2. Visual Verification on new growth photo
     let plantResult = {
       is_plant: true,
@@ -46,34 +52,33 @@ export async function POST(req: NextRequest) {
       api_failed: false,
     };
 
-    if (!bypassAntiFraud) {
-      try {
-        const result = await identifyPlant(imageBase64);
-        plantResult = { ...result, api_failed: false };
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "Unknown error";
-        console.warn("⚠️ Plant.id API failed during growth verification.", message);
-        plantResult.api_failed = true;
-      }
-
-      if (plantResult.api_failed) {
-        return NextResponse.json({
-          error: "Verification service is offline. Please try again later.",
-        }, { status: 503 });
-      }
-
-      if (!plantResult.is_plant || plantResult.is_plant_probability < 0.5) {
-        return NextResponse.json({
-          error: "Object identified in photo is not a valid plant. Please upload a clear photo of your tree.",
-        }, { status: 400 });
-      }
-
-      // Google Vision removed: growth verification relies solely on Plant.id results
+    try {
+      const result = await identifyPlant(imageBase64);
+      plantResult = { ...result, api_failed: false };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      console.warn("⚠️ Plant.id API failed during growth verification.", message);
+      plantResult.api_failed = true;
     }
 
-    // Calculate additional credits (simulating growth carbon capture)
-    // Between 5 and 15 kg CO2e
-    const additionalCredits = Math.floor(Math.random() * (15 - 5) + 5);
+    if (plantResult.api_failed) {
+      return NextResponse.json({
+        error: "Verification service is offline. Please try again later.",
+      }, { status: 503 });
+    }
+
+    const isPlantProb = plantResult.is_plant_probability || 0;
+    const taxonomyProb = plantResult.probability || 0;
+    const verificationScore = (taxonomyProb * 0.7) + (isPlantProb * 0.3);
+    const growthCredits = getGrowthAllocation(verificationScore);
+
+    if (!plantResult.is_plant || isPlantProb < 0.95 || taxonomyProb < 0.95 || verificationScore < 0.95 || !growthCredits) {
+      return NextResponse.json({
+        error: "Object identified in photo is not a verified plant. Please upload a clear photo of your tree.",
+      }, { status: 400 });
+    }
+
+    const additionalCredits = growthCredits;
     const newTotalCredits = (listing.credits || 0) + additionalCredits;
 
     // 3. Upload new image to Pinata IPFS

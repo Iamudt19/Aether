@@ -8,6 +8,14 @@ import {
   supabaseAdmin,
 } from "@/lib/api-utils";
 
+function getAllocationMatrix(score: number) {
+  if (score >= 0.98) return { credits: 60, band: "Elite" };
+  if (score >= 0.97) return { credits: 50, band: "Premium" };
+  if (score >= 0.96) return { credits: 40, band: "Strong" };
+  if (score >= 0.95) return { credits: 30, band: "Standard" };
+  return null;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { lat, lng, imageBase64, userAddress } = await req.json();
@@ -24,10 +32,7 @@ export async function POST(req: NextRequest) {
 
     console.log(`🌳  Received verification from ${userAddress}`);
 
-    const bypassAntiFraud = process.env.BYPASS_ANTI_FRAUD === "true";
-    console.log(`🛡️  Bypass anti-fraud flag: ${bypassAntiFraud}`);
-
-    // ── Visual Verification (Dual-Layer AI check) ────────────────────────────
+    // ── Plant.id Verification ────────────────────────────────────────────────
     let plantResult = {
       is_plant: true,
       is_plant_probability: 0.5,
@@ -36,65 +41,56 @@ export async function POST(req: NextRequest) {
       api_failed: false,
     };
 
-    if (!bypassAntiFraud) {
-      // 1. Plant.id Taxonomy Verification
-      try {
-        const result = await identifyPlant(imageBase64);
-        plantResult = { ...result, api_failed: false };
-        console.log(
-          `🔎  Plant.id → Species: ${plantResult.species} | Confidence: ${(plantResult.probability * 100).toFixed(1)}%`
-        );
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "Unknown error";
-        console.warn("⚠️ Plant.id API failed.", message);
-        plantResult.api_failed = true;
-      }
-
-      if (plantResult.api_failed) {
-        return NextResponse.json({
-          success: false,
-          rejected: true,
-          species: "Verification Service Unavailable",
-          probability: 0,
-          is_plant: false,
-          is_plant_probability: 0,
-          message: "Verification service is currently offline or the API limit is reached. Please try again later.",
-        });
-      }
-      // Stronger verification matrix on frontend as well
-      const isPlantProb = plantResult.is_plant_probability || 0;
-      const taxonomyProb = plantResult.probability || 0;
-      const combinedScore = (taxonomyProb * 0.7) + (isPlantProb * 0.3);
-      if (plantResult.api_failed || !plantResult.is_plant || isPlantProb < 0.75 || taxonomyProb < 0.85 || combinedScore < 0.85) {
-        return NextResponse.json({
-          success: false,
-          rejected: true,
-          species: plantResult.species || "Non-Plant Object",
-          probability: taxonomyProb,
-          is_plant: plantResult.is_plant,
-          is_plant_probability: isPlantProb,
-          verification_score: combinedScore,
-          message: "Visual verification failed: AI confidence is insufficient or object is not a verified plant. Please upload a clear photo of your tree outdoors.",
-        });
-      }
-
-      // Google Vision anti-fraud removed per request; verification relies solely on Plant.id
-    } else {
-      // Bypassed! Generate a random realistic tree species
-      const mockTrees = ["Moringa Oleifera", "Azadirachta Indica (Neem)", "Ficus Religiosa (Sacred Fig)", "Mangifera Indica (Mango)"];
-      plantResult = {
-        is_plant: true,
-        is_plant_probability: 0.98,
-        species: mockTrees[Math.floor(Math.random() * mockTrees.length)],
-        probability: 0.95,
-        api_failed: false,
-      };
-      console.log(`🛡️  Bypass active. Auto-generating tree species: ${plantResult.species}`);
+    try {
+      const result = await identifyPlant(imageBase64);
+      plantResult = { ...result, api_failed: false };
+      console.log(
+        `🔎  Plant.id → Species: ${plantResult.species} | Confidence: ${(plantResult.probability * 100).toFixed(1)}%`
+      );
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      console.warn("⚠️ Plant.id API failed.", message);
+      plantResult.api_failed = true;
     }
 
-    const { species, probability: confidence } = plantResult;
-    const estimatedHeight = Math.random() * (5 - 2) + 2;
-    const creditAmount = Math.floor(estimatedHeight * 0.5 * 3.67 * 10);
+    if (plantResult.api_failed) {
+      return NextResponse.json({
+        success: false,
+        rejected: true,
+        species: "Verification Service Unavailable",
+        probability: 0,
+        is_plant: false,
+        is_plant_probability: 0,
+        showConfidence: false,
+        message: "Verification service is currently offline or the API limit is reached. Please try again later.",
+      });
+    }
+
+    const isPlantProb = plantResult.is_plant_probability || 0;
+    const taxonomyProb = plantResult.probability || 0;
+    const verificationScore = (taxonomyProb * 0.7) + (isPlantProb * 0.3);
+    const allocation = getAllocationMatrix(verificationScore);
+
+    if (!plantResult.is_plant || isPlantProb < 0.95 || taxonomyProb < 0.95 || verificationScore < 0.95 || !allocation) {
+      console.warn(
+        `🚫 Verification failed: isPlant=${plantResult.is_plant}, isPlantProb=${isPlantProb.toFixed(2)}, taxonomyProb=${taxonomyProb.toFixed(2)}, score=${verificationScore.toFixed(2)}`
+      );
+      return NextResponse.json({
+        success: false,
+        rejected: true,
+        species: plantResult.species || "Non-Plant Object",
+        probability: taxonomyProb,
+        is_plant: plantResult.is_plant,
+        is_plant_probability: isPlantProb,
+        verification_score: verificationScore,
+        showConfidence: false,
+        message: "Visual verification failed: only clearly verified plants can receive credits. Please upload a clear tree photo outdoors.",
+      });
+    }
+
+    const { species } = plantResult;
+    const confidence = verificationScore;
+    const creditAmount = allocation.credits;
 
     // ── Pinata Uploads ────────────────────────────────────────────────────────
     const imageIPFSHash = await uploadImageToPinata(imageBase64);
@@ -110,6 +106,7 @@ export async function POST(req: NextRequest) {
         { trait_type: "Species", value: species },
         { trait_type: "AI Confidence", value: `${(confidence * 100).toFixed(1)}%` },
         { trait_type: "CO2 Offset (kg)", value: creditAmount },
+        { trait_type: "Allocation Band", value: allocation.band },
         { trait_type: "Verification Method", value: "Ground-Level Photo + Plant.id" },
         { trait_type: "Verified At", value: new Date().toISOString() },
       ],
@@ -150,6 +147,9 @@ export async function POST(req: NextRequest) {
       success: true,
       species,
       probability: confidence,
+      verification_score: verificationScore,
+      showConfidence: true,
+      allocationBand: allocation.band,
       credits: creditAmount,
       imageIPFSHash,
       tokenURI,

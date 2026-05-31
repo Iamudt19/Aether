@@ -98,6 +98,14 @@ async function uploadMetadataToPinata(metadata) {
   }
 }
 
+function getAllocationMatrix(score) {
+  if (score >= 0.98) return { credits: 60, band: "Elite" };
+  if (score >= 0.97) return { credits: 50, band: "Premium" };
+  if (score >= 0.96) return { credits: 40, band: "Strong" };
+  if (score >= 0.95) return { credits: 30, band: "Standard" };
+  return null;
+}
+
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
 /**
@@ -141,15 +149,12 @@ app.post("/api/verify", async (req, res) => {
       });
     }
 
-    // Stronger verification matrix:
-    // - require Plant.id to flag as plant with good probability
-    // - require taxonomy suggestion probability to be high
-    // - combine both scores into a verification_score and require a high threshold
     const isPlantProb = plantResult.is_plant_probability || 0;
     const taxonomyProb = plantResult.probability || 0;
     const combinedScore = (taxonomyProb * 0.7) + (isPlantProb * 0.3);
+    const allocation = getAllocationMatrix(combinedScore);
 
-    if (!plantResult.is_plant || isPlantProb < 0.75 || taxonomyProb < 0.85 || combinedScore < 0.85) {
+    if (!plantResult.is_plant || isPlantProb < 0.95 || taxonomyProb < 0.95 || combinedScore < 0.95 || !allocation) {
       console.warn(`🚫 Verification failed: plant check failed (isPlant=${plantResult.is_plant}, isPlantProb=${isPlantProb.toFixed(2)}, taxonomyProb=${taxonomyProb.toFixed(2)}, combined=${combinedScore.toFixed(2)})`);
       return res.status(200).json({
         success: false,
@@ -159,17 +164,14 @@ app.post("/api/verify", async (req, res) => {
         is_plant: plantResult.is_plant,
         is_plant_probability: isPlantProb,
         verification_score: combinedScore,
+        showConfidence: false,
         message: "Visual verification failed: AI confidence is insufficient or object is not a verified plant. Please upload a clear photo of your tree outdoors."
       });
     }
 
-    // NOTE: Google Vision anti-fraud layer removed per request.
-    // Verification now relies solely on Plant.id taxonomy results and the verification matrix.
-
     const species = plantResult.species;
-    const confidence = plantResult.probability;
-    const estimatedHeight = Math.random() * (5 - 2) + 2;
-    const creditAmount = Math.floor(estimatedHeight * 0.5 * 3.67 * 10);
+    const confidence = combinedScore;
+    const creditAmount = allocation.credits;
 
     const imageIPFSHash = await uploadImageToPinata(imageBase64);
     console.log(`🖼️  Image uploaded: ${imageIPFSHash}`);
@@ -184,6 +186,7 @@ app.post("/api/verify", async (req, res) => {
         { trait_type: "Species", value: species },
         { trait_type: "AI Confidence", value: `${(confidence * 100).toFixed(1)}%` },
         { trait_type: "CO2 Offset (kg)", value: creditAmount },
+        { trait_type: "Allocation Band", value: allocation.band },
         { trait_type: "Verification Method", value: "Ground-Level Photo + Plant.id" },
         { trait_type: "Verified At", value: new Date().toISOString() },
       ],
@@ -218,8 +221,17 @@ app.post("/api/verify", async (req, res) => {
     }
 
     return res.status(200).json({
-      success: true, species, probability: confidence, credits: creditAmount,
-      imageIPFSHash, tokenURI, signature, signerAddress: aiSigner.address,
+      success: true,
+      species,
+      probability: confidence,
+      verification_score: combinedScore,
+      showConfidence: true,
+      allocationBand: allocation.band,
+      credits: creditAmount,
+      imageIPFSHash,
+      tokenURI,
+      signature,
+      signerAddress: aiSigner.address,
       message: `Verified ${species} (${(confidence * 100).toFixed(1)}% confidence) → ${creditAmount} kg CO₂ credits.`,
     });
   } catch (err) {

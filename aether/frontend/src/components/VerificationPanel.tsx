@@ -203,17 +203,9 @@ export default function VerificationPanel({ lat, lng, imageBase64, onSuccess }: 
                 </div>
                 <h3 className="text-xl font-bold text-white mb-1">Verification Rejected</h3>
                 <p className="text-zinc-300 mb-3 text-sm">{result.message}</p>
-                <div className="flex gap-4 w-full mb-4">
-                   <div className="flex-1 bg-black/40 rounded-lg p-3">
-                     <p className="text-xs text-zinc-500 mb-0.5">Detected Object</p>
-                     <p className="text-sm text-white font-medium">{result.species}</p>
-                   </div>
-                   <div className="flex-1 bg-black/40 rounded-lg p-3">
-                     <p className="text-xs text-zinc-500 mb-0.5">Confidence</p>
-                     <p className="text-lg font-semibold font-mono text-white">
-                       {result.probability ? `${(result.probability * 100).toFixed(1)}%` : 'N/A'}
-                     </p>
-                   </div>
+                <div className="w-full mb-4 bg-black/40 rounded-lg p-3 text-left">
+                  <p className="text-xs text-zinc-500 mb-0.5">Detected Object</p>
+                  <p className="text-sm text-white font-medium">{result.species}</p>
                 </div>
                 <button
                   onClick={() => { setResult(null); setError(null); }}
@@ -233,21 +225,22 @@ export default function VerificationPanel({ lat, lng, imageBase64, onSuccess }: 
                 </div>
                 <h3 className="text-xl font-bold text-white mb-1">Tree Verification Success!</h3>
                 <p className="text-zinc-300 mb-2 font-medium">Species: <span className="text-white">{result.species}</span></p>
-                {/* Confidence bar */}
-                <div className="w-full bg-black/40 rounded-lg p-3 mb-2">
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-zinc-500">AI Confidence</span>
-                    <span className="text-white font-mono font-semibold">
-                      {result.probability ? `${(result.probability * 100).toFixed(1)}%` : '—'}
-                    </span>
+                {result.showConfidence !== false && (
+                  <div className="w-full bg-black/40 rounded-lg p-3 mb-2">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-zinc-500">AI Confidence</span>
+                      <span className="text-white font-mono font-semibold">
+                        {result.probability ? `${(result.probability * 100).toFixed(1)}%` : '—'}
+                      </span>
+                    </div>
+                    <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-white to-slate-400 rounded-full transition-all duration-700"
+                        style={{ width: `${(result.probability || 0) * 100}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-white to-slate-400 rounded-full transition-all duration-700"
-                      style={{ width: `${(result.probability || 0) * 100}%` }}
-                    />
-                  </div>
-                </div>
+                )}
                 <div className="flex gap-4 w-full">
                    <div className="flex-1 bg-black/40 rounded-lg p-3">
                      <p className="text-xs text-zinc-500 mb-0.5">IPFS Image Hash</p>
