@@ -60,11 +60,11 @@ export async function identifyPlant(base64Image: string) {
 }
 
 // ─── Google Vision Label Detection ───────────────────────────────────────────
-export async function detectImageLabels(base64Image: string): Promise<string[]> {
+export async function detectImageLabels(base64Image: string): Promise<{ labels: string[]; imageProperties: any | null }> {
   const GOOGLE_VISION_API_KEY = process.env.GOOGLE_VISION_API_KEY;
   if (!GOOGLE_VISION_API_KEY) {
     console.warn("⚠️ GOOGLE_VISION_API_KEY not set, skipping scene label analysis.");
-    return [];
+    return { labels: [], imageProperties: null };
   }
   try {
     const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, "");
@@ -81,20 +81,27 @@ export async function detectImageLabels(base64Image: string): Promise<string[]> 
                 type: "LABEL_DETECTION",
                 maxResults: 15,
               },
+              {
+                type: "IMAGE_PROPERTIES",
+                maxResults: 1,
+              },
             ],
           },
         ],
       },
       { timeout: 15000 }
     );
-    const annotations = res.data?.responses?.[0]?.labelAnnotations || [];
+    const response = res.data?.responses?.[0] || {};
+    const annotations = response.labelAnnotations || [];
     const labels = annotations.map((ann: any) => ann.description.toLowerCase());
+    const imageProperties = response.imagePropertiesAnnotation || null;
     console.log("🔍 Google Vision Scene Labels:", labels);
-    return labels;
+    console.log("🎨 Google Vision Image Properties:", imageProperties ? Object.keys(imageProperties) : null);
+    return { labels, imageProperties };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error("❌ Google Vision label detection failed:", message);
-    return [];
+    return { labels: [], imageProperties: null };
   }
 }
 

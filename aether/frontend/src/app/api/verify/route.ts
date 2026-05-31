@@ -87,7 +87,10 @@ export async function POST(req: NextRequest) {
       }
 
       // 2. Google Vision Scene Verification (Anti-Fraud)
-      const labels = await detectImageLabels(imageBase64);
+      const vision = await detectImageLabels(imageBase64);
+      const labels = vision.labels || [];
+      const imageProperties = vision.imageProperties || null;
+
       if (labels.length === 0) {
         console.warn("🚫 Anti-fraud alert: No scene labels detected in image.");
         return NextResponse.json({
@@ -99,6 +102,30 @@ export async function POST(req: NextRequest) {
           is_plant_probability: 0.0,
           message: "Visual verification failed: The image could not be analyzed for scene content. Please upload a clear, well-lit photo of your tree outdoors.",
         });
+      }
+
+      // basic mostly-dark check using Vision's dominant colors
+      if (imageProperties && imageProperties.dominantColors && imageProperties.dominantColors.colors) {
+        const colors = imageProperties.dominantColors.colors as any[];
+        let darkFraction = 0;
+        for (const c of colors) {
+          const col = c.color || { red: 0, green: 0, blue: 0 };
+          const r = col.red || 0, g = col.green || 0, b = col.blue || 0;
+          const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+          if (luminance < 20) darkFraction += (c.pixelFraction || 0);
+        }
+        if (darkFraction >= 0.85) {
+          console.warn("🚫 Anti-fraud alert: Image appears to be mostly dark/blank.");
+          return NextResponse.json({
+            success: false,
+            rejected: true,
+            species: "Blank / Dark Image",
+            probability: 0.0,
+            is_plant: false,
+            is_plant_probability: 0.0,
+            message: "Visual verification failed: The image appears to be blank or too dark to analyze. Please upload a clear, well-lit photo of your tree outdoors.",
+          });
+        }
       }
 
       if (labels.length > 0) {

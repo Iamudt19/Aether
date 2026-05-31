@@ -67,7 +67,7 @@ async function detectImageLabels(base64Image) {
   const GOOGLE_VISION_API_KEY = process.env.GOOGLE_VISION_API_KEY;
   if (!GOOGLE_VISION_API_KEY) {
     console.warn("⚠️ GOOGLE_VISION_API_KEY not set, skipping scene label analysis.");
-    return [];
+    return { labels: [], imageProperties: null };
   }
   try {
     const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, "");
@@ -84,20 +84,41 @@ async function detectImageLabels(base64Image) {
                 type: "LABEL_DETECTION",
                 maxResults: 15,
               },
+              {
+                type: "IMAGE_PROPERTIES",
+                maxResults: 1,
+              },
             ],
           },
         ],
       },
       { timeout: 15000 }
     );
-    const annotations = res.data?.responses?.[0]?.labelAnnotations || [];
+    const response = res.data?.responses?.[0] || {};
+    const annotations = response.labelAnnotations || [];
     const labels = annotations.map((ann) => ann.description.toLowerCase());
+    const imageProperties = response.imagePropertiesAnnotation || null;
     console.log("🔍 Google Vision Scene Labels:", labels);
-    return labels;
+    console.log("🎨 Google Vision Image Properties:", imageProperties ? Object.keys(imageProperties) : null);
+    return { labels, imageProperties };
   } catch (err) {
     console.error("❌ Google Vision label detection failed:", err.message);
-    return [];
+    return { labels: [], imageProperties: null };
   }
+}
+
+function isMostlyDark(imageProperties) {
+  if (!imageProperties || !imageProperties.dominantColors || !imageProperties.dominantColors.colors) return false;
+  const colors = imageProperties.dominantColors.colors;
+  // Compute fraction of pixels that are very dark (luminance < 20)
+  let darkFraction = 0;
+  for (const c of colors) {
+    const col = c.color || { red: 0, green: 0, blue: 0 };
+    const r = col.red || 0, g = col.green || 0, b = col.blue || 0;
+    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    if (luminance < 20) darkFraction += (c.pixelFraction || 0);
+  }
+  return darkFraction >= 0.85;
 }
 
 
@@ -200,7 +221,10 @@ app.post("/api/verify", async (req, res) => {
     }
 
     // 2. Google Vision Scene Verification (Anti-Fraud)
-    const labels = await detectImageLabels(imageBase64);
+    const vision = await detectImageLabels(imageBase64);
+    const labels = vision.labels || [];
+    const imageProperties = vision.imageProperties || null;
+
     if (labels.length === 0) {
       console.warn("🚫 Anti-fraud alert: No scene labels detected in image.");
       return res.status(200).json({
@@ -211,6 +235,19 @@ app.post("/api/verify", async (req, res) => {
         is_plant: false,
         is_plant_probability: 0.0,
         message: "Visual verification failed: The image could not be analyzed for scene content. Please upload a clear, well-lit photo of your tree outdoors.",
+      });
+    }
+
+    if (isMostlyDark(imageProperties)) {
+      console.warn("🚫 Anti-fraud alert: Image appears to be mostly dark/blank.");
+      return res.status(200).json({
+        success: false,
+        rejected: true,
+        species: "Blank / Dark Image",
+        probability: 0.0,
+        is_plant: false,
+        is_plant_probability: 0.0,
+        message: "Visual verification failed: The image appears to be blank or too dark to analyze. Please upload a clear, well-lit photo of your tree outdoors.",
       });
     }
 
