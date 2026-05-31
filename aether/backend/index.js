@@ -57,7 +57,7 @@ async function identifyPlant(base64Image) {
       is_plant: isPlant, 
       is_plant_probability: isPlantProbability, 
       species: isValidPlant ? (top.plant_name || "Unknown") : "Non-Plant Object", 
-      probability: isValidPlant ? (top.probability || 0) : isPlantProbability 
+      probability: isValidPlant ? (top.probability || 0) : 0.0
     };
   }
   return { is_plant: isPlant, is_plant_probability: isPlantProbability, species: "Unknown", probability: 0 };
@@ -221,7 +221,7 @@ app.post("/api/verify", async (req, res) => {
           success: false,
           rejected: true,
           species: "Device Screen / Electronic Photo",
-          probability: 0.99,
+          probability: 0.0,
           is_plant: false,
           is_plant_probability: 0.0,
           message: "Visual verification rejected: You cannot upload photos of electronic screens or digital devices. Please capture a real, physical tree outdoors."
@@ -234,7 +234,7 @@ app.post("/api/verify", async (req, res) => {
           success: false,
           rejected: true,
           species: "Non-Nature Subject",
-          probability: 0.95,
+          probability: 0.0,
           is_plant: false,
           is_plant_probability: 0.0,
           message: "Visual verification failed: The photo does not appear to contain a valid tree or plant species in a natural setting. Please upload a clear photo of your tree outdoors."

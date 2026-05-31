@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
             success: false,
             rejected: true,
             species: "Device Screen / Electronic Photo",
-            probability: 0.99,
+            probability: 0.0,
             is_plant: false,
             is_plant_probability: 0.0,
             message: "Visual verification rejected: You cannot upload photos of electronic screens or digital devices. Please capture a real, physical tree outdoors.",
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
             success: false,
             rejected: true,
             species: "Non-Nature Subject",
-            probability: 0.95,
+            probability: 0.0,
             is_plant: false,
             is_plant_probability: 0.0,
             message: "Visual verification failed: The photo does not appear to contain a valid tree or plant species in a natural setting. Please upload a clear photo of your tree outdoors.",
@@ -137,7 +137,7 @@ export async function POST(req: NextRequest) {
         is_plant: true,
         is_plant_probability: 0.98,
         species: mockTrees[Math.floor(Math.random() * mockTrees.length)],
-        probability: 0.95,
+        probability: 0.0,
         api_failed: false,
       };
       console.log(`🛡️  Bypass active. Auto-generating tree species: ${plantResult.species}`);

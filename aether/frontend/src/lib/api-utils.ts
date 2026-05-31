@@ -53,7 +53,7 @@ export async function identifyPlant(base64Image: string) {
       is_plant: isPlant,
       is_plant_probability: isPlantProbability,
       species: isValidPlant ? (top.plant_name || "Unknown") : "Non-Plant Object",
-      probability: isValidPlant ? (top.probability || 0) : isPlantProbability,
+      probability: isValidPlant ? (top.probability || 0) : 0.0,
     };
   }
   return { is_plant: isPlant, is_plant_probability: isPlantProbability, species: "Unknown", probability: 0 };
