@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { ethers } from "ethers";
 import {
   identifyPlant,
-  detectImageLabels,
   uploadImageToPinata,
   uploadMetadataToPinata,
   getAISigner,
@@ -79,90 +78,7 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // 2. Google Vision Scene Verification (Anti-Fraud)
-      const vision = await detectImageLabels(imageBase64);
-      const labels = vision.labels || [];
-      const imageProperties = vision.imageProperties || null;
-
-      if (labels.length === 0) {
-        console.warn("🚫 Anti-fraud alert: No scene labels detected in image.");
-        return NextResponse.json({
-          success: false,
-          rejected: true,
-          species: "Unverifiable Scene",
-          probability: 0.0,
-          is_plant: false,
-          is_plant_probability: 0.0,
-          message: "Visual verification failed: The image could not be analyzed for scene content. Please upload a clear, well-lit photo of your tree outdoors.",
-        });
-      }
-
-      // basic mostly-dark check using Vision's dominant colors
-      if (imageProperties && imageProperties.dominantColors && imageProperties.dominantColors.colors) {
-        const colors = imageProperties.dominantColors.colors as any[];
-        let darkFraction = 0;
-        for (const c of colors) {
-          const col = c.color || { red: 0, green: 0, blue: 0 };
-          const r = col.red || 0, g = col.green || 0, b = col.blue || 0;
-          const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-          if (luminance < 20) darkFraction += (c.pixelFraction || 0);
-        }
-        if (darkFraction >= 0.85) {
-          console.warn("🚫 Anti-fraud alert: Image appears to be mostly dark/blank.");
-          return NextResponse.json({
-            success: false,
-            rejected: true,
-            species: "Blank / Dark Image",
-            probability: 0.0,
-            is_plant: false,
-            is_plant_probability: 0.0,
-            message: "Visual verification failed: The image appears to be blank or too dark to analyze. Please upload a clear, well-lit photo of your tree outdoors.",
-          });
-        }
-      }
-
-      if (labels.length > 0) {
-        // Enforce tree/plant/nature context: At least one of these should be present
-        const natureKeywords = [
-          "tree", "plant", "leaf", "trunk", "branch", "forest", "vegetation", "shrub", "flora", 
-          "garden", "nature", "wood", "green", "botany", "houseplant", "aerial photography", 
-          "grass", "herb", "flower"
-        ];
-        const hasNatureContext = labels.some((lbl) => natureKeywords.includes(lbl));
-
-        // Reject screens, monitors, mobile phones, electronics, laptops, indoor offices
-        const screenKeywords = [
-          "screen", "monitor", "television", "display device", "mobile phone", "gadget", 
-          "smartphone", "laptop", "computer", "electronics"
-        ];
-        const isScreenOrDevice = labels.some((lbl) => screenKeywords.includes(lbl));
-
-        if (isScreenOrDevice) {
-          console.warn("🚫 Anti-fraud alert: Detected screen or mobile device in upload.");
-          return NextResponse.json({
-            success: false,
-            rejected: true,
-            species: "Device Screen / Electronic Photo",
-            probability: 0.0,
-            is_plant: false,
-            is_plant_probability: 0.0,
-            message: "Visual verification rejected: You cannot upload photos of electronic screens or digital devices. Please capture a real, physical tree outdoors.",
-          });
-        }
-
-        if (!hasNatureContext) {
-          console.warn("🚫 Anti-fraud alert: No tree, plant or nature labels detected in scene.");
-          return NextResponse.json({
-            success: false,
-            rejected: true,
-            species: "Non-Nature Subject",
-            probability: 0.0,
-            is_plant: false,
-            is_plant_probability: 0.0,
-            message: "Visual verification failed: The photo does not appear to contain a valid tree or plant species in a natural setting. Please upload a clear photo of your tree outdoors.",
-          });
-        }
-      }
+      // Google Vision anti-fraud removed per request; verification relies solely on Plant.id
     } else {
       // Bypassed! Generate a random realistic tree species
       const mockTrees = ["Moringa Oleifera", "Azadirachta Indica (Neem)", "Ficus Religiosa (Sacred Fig)", "Mangifera Indica (Mango)"];

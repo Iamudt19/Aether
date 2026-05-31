@@ -63,63 +63,7 @@ async function identifyPlant(base64Image) {
   return { is_plant: isPlant, is_plant_probability: isPlantProbability, species: "Unknown", probability: 0 };
 }
 
-async function detectImageLabels(base64Image) {
-  const GOOGLE_VISION_API_KEY = process.env.GOOGLE_VISION_API_KEY;
-  if (!GOOGLE_VISION_API_KEY) {
-    console.warn("⚠️ GOOGLE_VISION_API_KEY not set, skipping scene label analysis.");
-    return { labels: [], imageProperties: null };
-  }
-  try {
-    const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, "");
-    const res = await axios.post(
-      `https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_VISION_API_KEY}`,
-      {
-        requests: [
-          {
-            image: {
-              content: base64Data,
-            },
-            features: [
-              {
-                type: "LABEL_DETECTION",
-                maxResults: 15,
-              },
-              {
-                type: "IMAGE_PROPERTIES",
-                maxResults: 1,
-              },
-            ],
-          },
-        ],
-      },
-      { timeout: 15000 }
-    );
-    const response = res.data?.responses?.[0] || {};
-    const annotations = response.labelAnnotations || [];
-    const labels = annotations.map((ann) => ann.description.toLowerCase());
-    const imageProperties = response.imagePropertiesAnnotation || null;
-    console.log("🔍 Google Vision Scene Labels:", labels);
-    console.log("🎨 Google Vision Image Properties:", imageProperties ? Object.keys(imageProperties) : null);
-    return { labels, imageProperties };
-  } catch (err) {
-    console.error("❌ Google Vision label detection failed:", err.message);
-    return { labels: [], imageProperties: null };
-  }
-}
-
-function isMostlyDark(imageProperties) {
-  if (!imageProperties || !imageProperties.dominantColors || !imageProperties.dominantColors.colors) return false;
-  const colors = imageProperties.dominantColors.colors;
-  // Compute fraction of pixels that are very dark (luminance < 20)
-  let darkFraction = 0;
-  for (const c of colors) {
-    const col = c.color || { red: 0, green: 0, blue: 0 };
-    const r = col.red || 0, g = col.green || 0, b = col.blue || 0;
-    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    if (luminance < 20) darkFraction += (c.pixelFraction || 0);
-  }
-  return darkFraction >= 0.85;
-}
+// Google Vision removed from backend.
 
 
 async function uploadImageToPinata(base64Image) {
@@ -219,77 +163,8 @@ app.post("/api/verify", async (req, res) => {
       });
     }
 
-    // 2. Google Vision Scene Verification (Anti-Fraud)
-    const vision = await detectImageLabels(imageBase64);
-    const labels = vision.labels || [];
-    const imageProperties = vision.imageProperties || null;
-
-    if (labels.length === 0) {
-      console.warn("🚫 Anti-fraud alert: No scene labels detected in image.");
-      return res.status(200).json({
-        success: false,
-        rejected: true,
-        species: "Unverifiable Scene",
-        probability: 0.0,
-        is_plant: false,
-        is_plant_probability: 0.0,
-        message: "Visual verification failed: The image could not be analyzed for scene content. Please upload a clear, well-lit photo of your tree outdoors.",
-      });
-    }
-
-    if (isMostlyDark(imageProperties)) {
-      console.warn("🚫 Anti-fraud alert: Image appears to be mostly dark/blank.");
-      return res.status(200).json({
-        success: false,
-        rejected: true,
-        species: "Blank / Dark Image",
-        probability: 0.0,
-        is_plant: false,
-        is_plant_probability: 0.0,
-        message: "Visual verification failed: The image appears to be blank or too dark to analyze. Please upload a clear, well-lit photo of your tree outdoors.",
-      });
-    }
-
-    if (labels.length > 0) {
-      const natureKeywords = [
-        "tree", "plant", "leaf", "trunk", "branch", "forest", "vegetation", "shrub", "flora", 
-        "garden", "nature", "wood", "green", "botany", "houseplant", "aerial photography", 
-        "grass", "herb", "flower"
-      ];
-      const hasNatureContext = labels.some((lbl) => natureKeywords.includes(lbl));
-
-      const screenKeywords = [
-        "screen", "monitor", "television", "display device", "mobile phone", "gadget", 
-        "smartphone", "laptop", "computer", "electronics"
-      ];
-      const isScreenOrDevice = labels.some((lbl) => screenKeywords.includes(lbl));
-
-      if (isScreenOrDevice) {
-        console.warn("🚫 Anti-fraud alert: Detected screen or mobile device in upload.");
-        return res.status(200).json({
-          success: false,
-          rejected: true,
-          species: "Device Screen / Electronic Photo",
-          probability: 0.0,
-          is_plant: false,
-          is_plant_probability: 0.0,
-          message: "Visual verification rejected: You cannot upload photos of electronic screens or digital devices. Please capture a real, physical tree outdoors."
-        });
-      }
-
-      if (!hasNatureContext) {
-        console.warn("🚫 Anti-fraud alert: No tree, plant or nature labels detected in scene.");
-        return res.status(200).json({
-          success: false,
-          rejected: true,
-          species: "Non-Nature Subject",
-          probability: 0.0,
-          is_plant: false,
-          is_plant_probability: 0.0,
-          message: "Visual verification failed: The photo does not appear to contain a valid tree or plant species in a natural setting. Please upload a clear photo of your tree outdoors."
-        });
-      }
-    }
+    // NOTE: Google Vision anti-fraud layer removed per request.
+    // Verification now relies solely on Plant.id taxonomy results and the verification matrix.
 
     const species = plantResult.species;
     const confidence = plantResult.probability;

@@ -59,51 +59,7 @@ export async function identifyPlant(base64Image: string) {
   return { is_plant: isPlant, is_plant_probability: isPlantProbability, species: "Unknown", probability: 0 };
 }
 
-// ─── Google Vision Label Detection ───────────────────────────────────────────
-export async function detectImageLabels(base64Image: string): Promise<{ labels: string[]; imageProperties: any | null }> {
-  const GOOGLE_VISION_API_KEY = process.env.GOOGLE_VISION_API_KEY;
-  if (!GOOGLE_VISION_API_KEY) {
-    console.warn("⚠️ GOOGLE_VISION_API_KEY not set, skipping scene label analysis.");
-    return { labels: [], imageProperties: null };
-  }
-  try {
-    const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, "");
-    const res = await axios.post(
-      `https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_VISION_API_KEY}`,
-      {
-        requests: [
-          {
-            image: {
-              content: base64Data,
-            },
-            features: [
-              {
-                type: "LABEL_DETECTION",
-                maxResults: 15,
-              },
-              {
-                type: "IMAGE_PROPERTIES",
-                maxResults: 1,
-              },
-            ],
-          },
-        ],
-      },
-      { timeout: 15000 }
-    );
-    const response = res.data?.responses?.[0] || {};
-    const annotations = response.labelAnnotations || [];
-    const labels = annotations.map((ann: any) => ann.description.toLowerCase());
-    const imageProperties = response.imagePropertiesAnnotation || null;
-    console.log("🔍 Google Vision Scene Labels:", labels);
-    console.log("🎨 Google Vision Image Properties:", imageProperties ? Object.keys(imageProperties) : null);
-    return { labels, imageProperties };
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    console.error("❌ Google Vision label detection failed:", message);
-    return { labels: [], imageProperties: null };
-  }
-}
+// Google Vision removed: detectImageLabels function deleted.
 
 // ─── Pinata ───────────────────────────────────────────────────────────────────
 export async function uploadImageToPinata(base64Image: string): Promise<string> {

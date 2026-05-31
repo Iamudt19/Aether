@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { ethers } from "ethers";
 import {
   identifyPlant,
-  detectImageLabels,
   uploadImageToPinata,
   uploadMetadataToPinata,
   supabaseAdmin,
@@ -69,42 +68,7 @@ export async function POST(req: NextRequest) {
         }, { status: 400 });
       }
 
-      const vision = await detectImageLabels(imageBase64);
-      const labels = vision.labels || [];
-      const imageProperties = vision.imageProperties || null;
-
-      if (labels.length === 0) {
-        return NextResponse.json({
-          error: "Visual verification failed: The image could not be analyzed for scene content. Please upload a clear, well-lit photo of your tree outdoors.",
-        }, { status: 400 });
-      }
-
-      // basic mostly-dark check using Vision's dominant colors
-      if (imageProperties && imageProperties.dominantColors && imageProperties.dominantColors.colors) {
-        const colors = imageProperties.dominantColors.colors as any[];
-        let darkFraction = 0;
-        for (const c of colors) {
-          const col = c.color || { red: 0, green: 0, blue: 0 };
-          const r = col.red || 0, g = col.green || 0, b = col.blue || 0;
-          const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-          if (luminance < 20) darkFraction += (c.pixelFraction || 0);
-        }
-        if (darkFraction >= 0.85) {
-          return NextResponse.json({
-            error: "Visual verification failed: The image appears to be blank or too dark to analyze. Please upload a clear, well-lit photo of your tree outdoors.",
-          }, { status: 400 });
-        }
-      }
-
-      if (labels.length > 0) {
-        const screenKeywords = ["screen", "monitor", "television", "display device", "mobile phone", "gadget", "smartphone", "laptop", "computer"];
-        const isScreenOrDevice = labels.some((lbl) => screenKeywords.includes(lbl));
-        if (isScreenOrDevice) {
-          return NextResponse.json({
-            error: "Visual verification rejected: You cannot upload photos of electronic screens. Please capture a real, physical tree.",
-          }, { status: 400 });
-        }
-      }
+      // Google Vision removed: growth verification relies solely on Plant.id results
     }
 
     // Calculate additional credits (simulating growth carbon capture)
