@@ -32,6 +32,41 @@ export default function VerificationPanel({ lat, lng, imageBase64, onSuccess }: 
     setError(null);
     setResult(null);
 
+    // Client-side blank/dark image check to avoid sending unusable images
+    const isMostlyDarkClient = await (async () => {
+      try {
+        return await new Promise<boolean>((resolve) => {
+          const img = new Image();
+          img.src = imageBase64 as string;
+          img.crossOrigin = 'Anonymous';
+          img.onload = () => {
+            const w = 50; const h = 50;
+            const canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return resolve(false);
+            ctx.drawImage(img, 0, 0, w, h);
+            const data = ctx.getImageData(0, 0, w, h).data;
+            let darkCount = 0;
+            const total = w * h;
+            for (let i = 0; i < data.length; i += 4) {
+              const r = data[i], g = data[i+1], b = data[i+2];
+              const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+              if (lum < 20) darkCount++;
+            }
+            resolve((darkCount / total) >= 0.85);
+          };
+          img.onerror = () => resolve(false);
+        });
+      } catch (_) { return false; }
+    })();
+
+    if (isMostlyDarkClient) {
+      setError('Image appears blank or too dark. Please upload a clear, well-lit photo of your tree.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
       const res = await fetch(`${backendUrl}/api/verify`, {
