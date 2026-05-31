@@ -44,8 +44,6 @@ export default function CaptureProof({ onCapture }: CaptureProofProps) {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [captureMode, setCaptureMode] = useState<'camera' | 'gallery' | null>(null);
   const [hasExifGPS, setHasExifGPS] = useState<boolean | null>(null);
-  const [noMetaMask, setNoMetaMask] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
 
@@ -54,15 +52,8 @@ export default function CaptureProof({ onCapture }: CaptureProofProps) {
   const streamRef = useRef<MediaStream | null>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
-  // Check MetaMask on mount
+  // Initialize on mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const isMob = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      setIsMobile(isMob);
-      if (typeof window.ethereum === 'undefined') {
-        setNoMetaMask(true);
-      }
-    }
     requestLocation();
   }, []);
 
@@ -202,57 +193,7 @@ export default function CaptureProof({ onCapture }: CaptureProofProps) {
     setViewState('picker');
   };
 
-  // ─── MetaMask Missing ──────────────────────────────────────────────────
-  if (noMetaMask && !isConnected) {
-    const deepLinkUrl = typeof window !== 'undefined'
-      ? `https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`
-      : 'https://metamask.app.link/';
 
-    return (
-      <div className="glass-panel p-8 rounded-3xl w-full h-full flex flex-col items-center justify-center text-center">
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center max-w-sm">
-          <div className="w-20 h-20 bg-amber-500/20 rounded-full flex items-center justify-center mb-6 border border-amber-500/20">
-            <AlertTriangle className="w-10 h-10 text-amber-400 animate-pulse" />
-          </div>
-          <h3 className="text-2xl font-bold mb-2">MetaMask Not Detected</h3>
-          {isMobile ? (
-            <>
-              <p className="text-zinc-400 text-xs mb-6 leading-relaxed">
-                Mobile browsers do not support desktop extensions. Open this dApp directly inside the MetaMask built-in browser or connect using WalletConnect.
-              </p>
-              <div className="flex flex-col gap-3 w-full">
-                <a
-                  href={deepLinkUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="glass-btn-primary py-3.5 px-6 rounded-xl text-xs uppercase tracking-wider font-black flex items-center justify-center gap-2 transform hover:-translate-y-0.5 shadow-md"
-                >
-                  Open in MetaMask App
-                </a>
-                <span className="text-[10px] text-zinc-500">
-                  Or tap "Connect Wallet" at the top right to use WalletConnect.
-                </span>
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="text-zinc-400 text-xs mb-6 leading-relaxed">
-                Please install the MetaMask browser extension to verify your ground-level ecology proofs and mint CO₂ carbon credits on-chain.
-              </p>
-              <a
-                href="https://metamask.io/download/"
-                target="_blank"
-                rel="noreferrer"
-                className="glass-btn-primary py-3 px-8 rounded-xl text-xs uppercase tracking-widest font-black transition-all flex items-center gap-2 transform hover:-translate-y-0.5"
-              >
-                Install MetaMask Extension
-              </a>
-            </>
-          )}
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
     <div className="glass-panel p-6 rounded-3xl w-full h-full flex flex-col items-center justify-center text-center relative overflow-hidden">
