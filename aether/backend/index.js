@@ -201,6 +201,19 @@ app.post("/api/verify", async (req, res) => {
 
     // 2. Google Vision Scene Verification (Anti-Fraud)
     const labels = await detectImageLabels(imageBase64);
+    if (labels.length === 0) {
+      console.warn("🚫 Anti-fraud alert: No scene labels detected in image.");
+      return res.status(200).json({
+        success: false,
+        rejected: true,
+        species: "Unverifiable Scene",
+        probability: 0.0,
+        is_plant: false,
+        is_plant_probability: 0.0,
+        message: "Visual verification failed: The image could not be analyzed for scene content. Please upload a clear, well-lit photo of your tree outdoors.",
+      });
+    }
+
     if (labels.length > 0) {
       const natureKeywords = [
         "tree", "plant", "leaf", "trunk", "branch", "forest", "vegetation", "shrub", "flora", 
@@ -283,7 +296,7 @@ app.post("/api/verify", async (req, res) => {
         credits: creditAmount,
         price_inr: creditAmount * 10,
         tx_hash: signature.slice(0, 42),
-        status: "active",
+        status: "pending",
         lat: lat || null,
         lng: lng || null,
         image_url: imageIPFSHash,
@@ -343,7 +356,7 @@ app.post("/api/listings/confirm", async (req, res) => {
       .from("carbon_listings")
       .update({
         token_id: newTokenId,
-        tx_hash: txHash,
+        tx_hash: txHash, status: "active",
       })
       .eq("id", listingId);
 

@@ -88,6 +88,19 @@ export async function POST(req: NextRequest) {
 
       // 2. Google Vision Scene Verification (Anti-Fraud)
       const labels = await detectImageLabels(imageBase64);
+      if (labels.length === 0) {
+        console.warn("🚫 Anti-fraud alert: No scene labels detected in image.");
+        return NextResponse.json({
+          success: false,
+          rejected: true,
+          species: "Unverifiable Scene",
+          probability: 0.0,
+          is_plant: false,
+          is_plant_probability: 0.0,
+          message: "Visual verification failed: The image could not be analyzed for scene content. Please upload a clear, well-lit photo of your tree outdoors.",
+        });
+      }
+
       if (labels.length > 0) {
         // Enforce tree/plant/nature context: At least one of these should be present
         const natureKeywords = [
@@ -137,7 +150,7 @@ export async function POST(req: NextRequest) {
         is_plant: true,
         is_plant_probability: 0.98,
         species: mockTrees[Math.floor(Math.random() * mockTrees.length)],
-        probability: 0.0,
+        probability: 0.95,
         api_failed: false,
       };
       console.log(`🛡️  Bypass active. Auto-generating tree species: ${plantResult.species}`);
@@ -187,7 +200,7 @@ export async function POST(req: NextRequest) {
         credits: creditAmount,
         price_inr: creditAmount * 10,
         tx_hash: signature.slice(0, 42),
-        status: "active",
+        status: "pending",
         lat: lat || null,
         lng: lng || null,
         image_url: imageIPFSHash,
