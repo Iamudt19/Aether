@@ -113,39 +113,24 @@ export default function SellerDashboard() {
 
   const handleCancelListing = async (tokenId: number) => {
     if (!address) return;
-    if (!window.confirm(`Are you sure you want to cancel Token #${tokenId} listing on-chain? The NFT will be active in your wallet, but removed from public sales.`)) {
+    if (!window.confirm(`Are you sure you want to cancel Token #${tokenId} listing? The NFT will be active in your wallet, but removed from public sales.`)) {
       return;
     }
 
     setCancellingTokenId(tokenId);
 
     try {
-      const tx = await writeContractAsync({
-        address: contractAddress as `0x${string}`,
-        abi,
-        functionName: 'cancelListing',
-        args: [BigInt(tokenId)],
-      });
+      // Deactivate status in Supabase directly since listings are managed off-chain for zero-gas browsing
+      const { error } = await supabase
+        .from('carbon_listings')
+        .update({ status: 'inactive' })
+        .eq('token_id', tokenId)
+        .eq('seller_address', address.toLowerCase());
 
-      console.log(`✅ On-chain cancel listing transaction sent: ${tx}`);
+      if (error) throw error;
 
-      const res = await fetch(`${BACKEND_URL}/api/listings`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tokenId,
-          userAddress: address,
-          txHash: tx,
-        }),
-      });
-
-      const json = await res.json();
-      if (json.success) {
-        alert(`Successfully cancelled Token #${tokenId} listing! It is now inactive in the marketplace.`);
-        fetchListings();
-      } else {
-        alert("Transaction recorded on-chain, but failed to update database.");
-      }
+      alert(`Successfully cancelled Token #${tokenId} listing! It is now inactive in the marketplace.`);
+      fetchListings();
     } catch (err: any) {
       console.error("Cancel listing failed:", err);
       alert(`Cancel listing failed: ${err.message || err}`);
