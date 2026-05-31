@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { Camera, ImagePlus, MapPin, UploadCloud, X, Loader2, AlertTriangle, Video, Circle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAccount } from 'wagmi';
 
 interface CaptureProofProps {
   onCapture: (base64Image: string, lat: number, lng: number) => void;
@@ -35,6 +36,7 @@ function extractEXIFGPS(file: File): Promise<{ lat: number; lng: number } | null
 type ViewState = 'picker' | 'camera' | 'preview';
 
 export default function CaptureProof({ onCapture }: CaptureProofProps) {
+  const { isConnected } = useAccount();
   const [viewState, setViewState] = useState<ViewState>('picker');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -201,7 +203,7 @@ export default function CaptureProof({ onCapture }: CaptureProofProps) {
   };
 
   // ─── MetaMask Missing ──────────────────────────────────────────────────
-  if (noMetaMask) {
+  if (noMetaMask && !isConnected) {
     const deepLinkUrl = typeof window !== 'undefined'
       ? `https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`
       : 'https://metamask.app.link/';
